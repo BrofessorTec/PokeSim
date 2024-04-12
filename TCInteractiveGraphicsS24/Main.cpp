@@ -633,7 +633,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	std::shared_ptr<GraphicsEnvironment> graphicsEnviron = std::make_shared<GraphicsEnvironment>();
 	graphicsEnviron->Init(4, 3);
 
-	bool created = graphicsEnviron->SetWindow(1200, 800, "ETSU Computing Interactive Graphics");
+	bool created = graphicsEnviron->SetWindow(1200, 800, "Poke Sim");
 	if (created == false) return -1;
 
 

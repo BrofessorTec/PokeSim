@@ -435,7 +435,7 @@ void GraphicsEnvironment::Run3D()
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
-		ImGui::Begin("Computing Interactive Graphics");
+		ImGui::Begin("Poke Sim");
 		//ImGui::Text(message.c_str());  no result object anymore?
 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)",
 			1000.0f / io.Framerate, io.Framerate);
@@ -464,7 +464,7 @@ void GraphicsEnvironment::Run3D()
 		// add a slider for box animation speed 
 		//ImGui::SliderFloat("Animation Speed", &rotateAnimation->GetSpeed(), -360, 360);
 		//ImGui::SliderFloat("Sliding Speed", &slideAnimation->GetSpeed(), 0, 120);
-		ImGui::Checkbox("Correct gamma", &correctGamma);
+		//ImGui::Checkbox("Correct gamma", &correctGamma);
 		//ImGui::SliderFloat("Local Light Position X", &GetRenderer("renderer3d")->GetScene()->GetLocalLight().position.x, -40, 40); 
 		//ImGui::SliderFloat("Local Light Position Y", &GetRenderer("renderer3d")->GetScene()->GetLocalLight().position.y, -40, 40);
 		//ImGui::SliderFloat("Local Light Position Z", &GetRenderer("renderer3d")->GetScene()->GetLocalLight().position.z, -40, 40); 
