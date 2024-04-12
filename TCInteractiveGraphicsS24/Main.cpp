@@ -93,6 +93,34 @@ static void SetUpPokeBattler(std::shared_ptr<Shader>& shader3d,
 	graphicsObject3dFloor->RotateLocalY(90.0f);
 	scene3d->AddObject(graphicsObject3dFloor);
 
+	/*
+	// attempting to add background image here
+	std::shared_ptr<Texture> backgroundTex = std::make_shared<Texture>();
+	backgroundTex->LoadTextureDataFromFile("..\\3rdparty\\Background.jpg");
+
+	float backgroundWidth = 180.0f;
+	float backgroundHeight = 90.0f;
+
+	std::shared_ptr<GraphicsObject> background = std::make_shared<GraphicsObject>();
+	std::shared_ptr<VertexBuffer> bufferBackground = Generate::XYPlaneNorm(backgroundWidth, backgroundHeight);
+
+	bufferBackground->AddVertexAttribute("position", 0, 3, 0);
+	bufferBackground->AddVertexAttribute("vertexColor", 1, 4, 3);
+	bufferBackground->AddVertexAttribute("normal", 2, 3, 7);
+	bufferBackground->AddVertexAttribute("texCoord", 3, 2, 10);
+
+	// adjusting the texture settings here
+	//poke1Tex->SetWrapS(GL_REPEAT);
+	//poke1Tex->SetWrapT(GL_REPEAT);
+	backgroundTex->SetMagFilter(GL_NEAREST);
+	backgroundTex->SetMinFilter(GL_NEAREST);
+
+	bufferBackground->SetTexture(backgroundTex);
+
+	background->SetVertexBuffer(bufferBackground);
+	background->SetPosition(glm::vec3(0.0f, 30.0f, -75.0f));
+	scene3d->AddObject(background);
+	*/
 
 	// new poke code here
 
@@ -239,19 +267,90 @@ static void SetUpPokeBattler(std::shared_ptr<Shader>& shader3d,
 	poke2->SetPosition(glm::vec3(7.5f, 4.0f, 0.0f));  //can adjust position if needed
 	scene3d->AddObject(poke2);
 
-	attackBtn->SetPosition(glm::vec3(-4.0f, 1.0f, 8.0f));
+	attackBtn->SetPosition(glm::vec3(-4.0f, 1.0f, 10.0f));
 	scene3d->AddObject(attackBtn);
-	catchBtn->SetPosition(glm::vec3(4.0f, 1.0f, 8.0f));
+	catchBtn->SetPosition(glm::vec3(4.0f, 1.0f, 10.0f));
 	scene3d->AddObject(catchBtn);
 
 	graphicsEnviron->AddObject("floor", graphicsObject3dFloor);
+	//graphicsEnviron->AddObject("background", background);
 	graphicsEnviron->AddObject("poke1", poke1);
 	graphicsEnviron->AddObject("poke2", poke2);
 	graphicsEnviron->AddObject("attackBtn", attackBtn);
 	graphicsEnviron->AddObject("catchBtn", catchBtn);
 
+
 }
 // poke scene ends here
+
+// new backgrounds scene here
+static void SetUpBackgroundScene(std::shared_ptr<Shader>&
+	backgroundShader, std::shared_ptr<Scene>& backgroundScene, std::shared_ptr<GraphicsEnvironment>& graphicsEnviron)
+{
+	//unsigned int shaderProgram;
+	std::shared_ptr<TextFile> vertFile = std::make_shared<TextFile>();
+	// relative path 
+	vertFile->ReadFile("texture.vert.glsl");
+
+	// relative path
+	std::shared_ptr<TextFile> fragFile = std::make_shared<TextFile>();
+	fragFile->ReadFile("texture.frag.glsl");
+
+	backgroundShader = std::make_shared<Shader>(vertFile->GetString(), fragFile->GetString());
+
+	backgroundShader->AddUniform("projection");
+	backgroundShader->AddUniform("world");
+	backgroundShader->AddUniform("view");
+
+	// new textured object to scene
+	backgroundScene = std::make_shared<Scene>();
+	std::shared_ptr<GraphicsObject> background = std::make_shared<GraphicsObject>();
+
+	std::shared_ptr<VertexBuffer> backgroundBuffer = Generate::XYPlane(180, 90);
+
+	backgroundBuffer->AddVertexAttribute("position", 0, 3, 0);
+	backgroundBuffer->AddVertexAttribute("vertexColor", 1, 3, 3);
+	backgroundBuffer->AddVertexAttribute("texCoord", 2, 2, 6);
+
+
+	std::shared_ptr<Texture> backgroundTex = std::make_shared<Texture>();
+	backgroundTex->LoadTextureDataFromFile("..\\3rdparty\\Background.jpg");
+
+
+	backgroundBuffer->SetTexture(backgroundTex);
+	background->SetVertexBuffer(backgroundBuffer);
+	background->SetPosition(glm::vec3(0.0f, 30.0f, -75.0f));
+
+	backgroundScene->AddObject(background);
+	graphicsEnviron->AddObject("background", background);
+
+	// setting dirt floor here
+	std::shared_ptr<GraphicsObject> floor = std::make_shared<GraphicsObject>();
+
+	std::shared_ptr<VertexBuffer> floorBuffer = Generate::XZPlane(180, 180);
+
+	floorBuffer->AddVertexAttribute("position", 0, 3, 0);
+	floorBuffer->AddVertexAttribute("vertexColor", 1, 3, 3);
+	floorBuffer->AddVertexAttribute("texCoord", 2, 2, 6);
+
+
+	std::shared_ptr<Texture> floorTex = std::make_shared<Texture>();
+	floorTex->LoadTextureDataFromFile("..\\3rdparty\\Ground.jpg");
+
+
+	floorBuffer->SetTexture(floorTex);
+	floor->SetVertexBuffer(floorBuffer);
+	floor->SetPosition(glm::vec3(0.0f, -0.1f, 30.0f));
+
+	backgroundScene->AddObject(floor);
+	graphicsEnviron->AddObject("floor", floor);
+
+}
+
+
+
+
+
 
 
 static void SetUp3DScene2(std::shared_ptr<Shader>& shader3d,
@@ -647,9 +746,14 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	std::shared_ptr<Shader> shader3d;
 	std::shared_ptr<Scene> scene3d;
 	//SetUp3DScene1(shader3d, scene3d, graphicsEnviron);
-	// set up the poke scene here
-	//SetUp3DScene2(shader3d, scene3d, graphicsEnviron);
+	// set up the poke scenes here
+	std::shared_ptr<Shader> shaderBackground;
+	std::shared_ptr<Scene> sceneBackground;
+	SetUpBackgroundScene(shaderBackground, sceneBackground, graphicsEnviron);
 	SetUpPokeBattler(shader3d, scene3d, graphicsEnviron);
+
+	graphicsEnviron->CreateRenderer("rendererBackground", shaderBackground);
+	graphicsEnviron->GetRenderer("rendererBackground")->SetScene(sceneBackground);
 
 	graphicsEnviron->CreateRenderer("renderer3d", shader3d);
 	graphicsEnviron->GetRenderer("renderer3d")->SetScene(scene3d);
