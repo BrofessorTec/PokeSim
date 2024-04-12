@@ -190,7 +190,7 @@ void GraphicsEnvironment::ProcessInput(GLFWwindow* window, double elapsedSeconds
 
 	if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS) {
 		camera->SetLookFrame(glm::mat4(1.0f));
-		camera->SetPosition(glm::vec3(0.0f, 4.5f, 20.0f));
+		camera->SetPosition(glm::vec3(0.0f, 5.5f, 22.5f));
 		lookWithMouse = false;
 		return;
 	}
@@ -199,7 +199,7 @@ void GraphicsEnvironment::ProcessInput(GLFWwindow* window, double elapsedSeconds
 		glm::mat4 look(1.0f);
 		look = glm::rotate(look, glm::radians(90.0f), { 0, 1, 0 });
 		camera->SetLookFrame(look);
-		camera->SetPosition(glm::vec3(30.0f, 4.5f, 0.0f));
+		camera->SetPosition(glm::vec3(30.0f, 5.5f, 0.0f));
 		lookWithMouse = false;
 		return;
 	}
@@ -208,7 +208,7 @@ void GraphicsEnvironment::ProcessInput(GLFWwindow* window, double elapsedSeconds
 		glm::mat4 look(1.0f);
 		look = glm::rotate(look, glm::radians(180.0f), { 0, 1, 0 });
 		camera->SetLookFrame(look);
-		camera->SetPosition(glm::vec3(0.0f, 4.5f, -20.0f));
+		camera->SetPosition(glm::vec3(0.0f, 5.5f, -20.0f));
 		lookWithMouse = false;
 		return;
 	}
@@ -217,7 +217,7 @@ void GraphicsEnvironment::ProcessInput(GLFWwindow* window, double elapsedSeconds
 		glm::mat4 look(1.0f);
 		look = glm::rotate(look, glm::radians(-90.0f), { 0, 1, 0 });
 		camera->SetLookFrame(look);
-		camera->SetPosition(glm::vec3(-30.0f, 4.5f, 0.0f));
+		camera->SetPosition(glm::vec3(-30.0f, 5.5f, 0.0f));
 		lookWithMouse = false;
 		return;
 	}
@@ -297,7 +297,7 @@ void GraphicsEnvironment::Run3D()
 	glm::mat4 projection;
 	glm::mat4 referenceFrame(1.0f);
 	glm::vec3 clearColor = { 0.2f, 0.3f, 0.3f };
-	camera->SetPosition(glm::vec3(0.0f, 4.5f, 20.0f));
+	camera->SetPosition(glm::vec3(0.0f, 5.5f, 22.5f));
 
 
 	//bool lookWithMouse = false;
@@ -310,7 +310,8 @@ void GraphicsEnvironment::Run3D()
 	GeometricPlane plane;
 	Intersection intersection;
 	glm::vec3 floorIntersectionPoint{};
-	//float crateDefaultAmbient = objManager->GetObject("Crate")->GetMaterial().ambientIntensity;
+	//float crateDefaultAmbient = objManager->GetObject("Crate")->GetMaterial().ambient
+	// ;
 	//float cubeDefaultAmbient = objManager->GetObject("cube")->GetMaterial().ambientIntensity;
 
 
@@ -363,7 +364,7 @@ void GraphicsEnvironment::Run3D()
 		// mouse settings
 		if (resetCameraPosition) {
 			camera->SetLookFrame(glm::mat4(1.0f));
-			camera->SetPosition(glm::vec4(0.0f, 4.5f, 20.0f, 1.0f));
+			camera->SetPosition(glm::vec4(0.0f, 5.5f, 25.0f, 1.0f));
 			resetCameraPosition = false;
 			lookWithMouse = false;
 		}
