@@ -39,6 +39,12 @@ public:
         glm::vec3 normal = { 1.0f, 1.0f, 1.0f },
         glm::vec2 tex = { 1.0f, 1.0 });
 
+    static std::shared_ptr<VertexBuffer> XYPlaneNormReverse(
+        float width, float height,
+        glm::vec4 color = { 1.0f, 1.0f, 1.0f, 1.0f },
+        glm::vec3 normal = { 1.0f, 1.0f, 1.0f },
+        glm::vec2 tex = { 1.0f, 1.0 });
+
     static void GenerateXZCircle(double radius, glm::vec3 color, int steps, std::shared_ptr<VertexBuffer> bufferToFill);
 
     static void LineCircleIndexes(

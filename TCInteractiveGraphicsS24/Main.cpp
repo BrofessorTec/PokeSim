@@ -78,7 +78,7 @@ static void SetUpPokeBattler(std::shared_ptr<Shader>& shader3d,
 	float poke1Height = 10.0f;
 
 	std::shared_ptr<GraphicsObject> poke1 = std::make_shared<GraphicsObject>();
-	std::shared_ptr<VertexBuffer> bufferPoke1 = Generate::XYPlaneNorm(poke1Width, poke1Height);
+	std::shared_ptr<VertexBuffer> bufferPoke1 = Generate::XYPlaneNormReverse(poke1Width, poke1Height);
 
 	bufferPoke1->AddVertexAttribute("position", 0, 3, 0);
 	bufferPoke1->AddVertexAttribute("vertexColor", 1, 4, 3);
