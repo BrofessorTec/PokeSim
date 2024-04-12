@@ -65,6 +65,36 @@ static void SetUpPokeBattler(std::shared_ptr<Shader>& shader3d,
 	unsigned int viewLoc = glGetUniformLocation(shaderProgram, "view");
 	unsigned int worldLoc = glGetUniformLocation(shaderProgram, "world");
 
+	// new Floor code here
+	std::shared_ptr<Texture> texture3dFloor = std::make_shared<Texture>();
+
+	texture3dFloor->LoadTextureDataFromFile("..\\3rdparty\\Poke\\floor.png");
+
+
+	std::shared_ptr<GraphicsObject> graphicsObject3dFloor = std::make_shared<GraphicsObject>();
+	std::shared_ptr<VertexBuffer> bufferFloor = Generate::XZPlaneNorm(30, 40, glm::vec4{ 1.0f, 1.0f, 1.0f, 1.0f }, glm::vec3{ 1.0f, 1.0f, 1.0f }, glm::vec2{ 1.0f, 1.0f });
+
+	bufferFloor->AddVertexAttribute("position", 0, 3, 0);
+	bufferFloor->AddVertexAttribute("vertexColor", 1, 4, 3);
+	bufferFloor->AddVertexAttribute("normal", 2, 3, 7);
+	bufferFloor->AddVertexAttribute("texCoord", 3, 2, 10);
+
+	// adjusting the texture settings here
+	texture3dFloor->SetWrapS(GL_REPEAT);
+	texture3dFloor->SetWrapT(GL_REPEAT);
+	texture3dFloor->SetMagFilter(GL_NEAREST);
+	texture3dFloor->SetMinFilter(GL_NEAREST);
+
+	bufferFloor->SetTexture(texture3dFloor);
+
+	graphicsObject3dFloor->SetVertexBuffer(bufferFloor);
+
+	graphicsObject3dFloor->SetPosition(glm::vec3(0.0f, 0.0f, 0.0f));  //can adjust position if needed
+	graphicsObject3dFloor->RotateLocalY(90.0f);
+	scene3d->AddObject(graphicsObject3dFloor);
+
+
+	// new poke code here
 
 	std::shared_ptr<Texture> poke1Tex = std::make_shared<Texture>();
 	// texture sprites from https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/6.png
@@ -203,10 +233,10 @@ static void SetUpPokeBattler(std::shared_ptr<Shader>& shader3d,
 	catchBtn->AddBehavior("highlight", catchBtnHighlight);
 
 
-	poke1->SetPosition(glm::vec3(-7.5f, 7.5f, 0.0f));  //can adjust position if needed
+	poke1->SetPosition(glm::vec3(-7.5f, 4.0f, 0.0f));  //can adjust position if needed
 	scene3d->AddObject(poke1);
 
-	poke2->SetPosition(glm::vec3(7.5f, 7.5f, 0.0f));  //can adjust position if needed
+	poke2->SetPosition(glm::vec3(7.5f, 4.0f, 0.0f));  //can adjust position if needed
 	scene3d->AddObject(poke2);
 
 	attackBtn->SetPosition(glm::vec3(-4.0f, 1.0f, 8.0f));
@@ -214,40 +244,11 @@ static void SetUpPokeBattler(std::shared_ptr<Shader>& shader3d,
 	catchBtn->SetPosition(glm::vec3(4.0f, 1.0f, 8.0f));
 	scene3d->AddObject(catchBtn);
 
-
-	// new Floor code here
-	std::shared_ptr<Texture> texture3dFloor = std::make_shared<Texture>();
-
-	texture3dFloor->LoadTextureDataFromFile("..\\3rdparty\\Poke\\floor.png");
-
-
-	std::shared_ptr<GraphicsObject> graphicsObject3dFloor = std::make_shared<GraphicsObject>();
-	std::shared_ptr<VertexBuffer> bufferFloor = Generate::XZPlaneNorm(30, 40, glm::vec4{ 1.0f, 1.0f, 1.0f, 1.0f }, glm::vec3{ 1.0f, 1.0f, 1.0f }, glm::vec2{ 1.0f, 1.0f });
-
-	bufferFloor->AddVertexAttribute("position", 0, 3, 0);
-	bufferFloor->AddVertexAttribute("vertexColor", 1, 4, 3);
-	bufferFloor->AddVertexAttribute("normal", 2, 3, 7);
-	bufferFloor->AddVertexAttribute("texCoord", 3, 2, 10);
-
-	// adjusting the texture settings here
-	texture3dFloor->SetWrapS(GL_REPEAT);
-	texture3dFloor->SetWrapT(GL_REPEAT);
-	texture3dFloor->SetMagFilter(GL_NEAREST);
-	texture3dFloor->SetMinFilter(GL_NEAREST);
-
-	bufferFloor->SetTexture(texture3dFloor);
-
-	graphicsObject3dFloor->SetVertexBuffer(bufferFloor);
-
-	graphicsObject3dFloor->SetPosition(glm::vec3(0.0f, 0.0f, 0.0f));  //can adjust position if needed
-	graphicsObject3dFloor->RotateLocalY(90.0f);
-	scene3d->AddObject(graphicsObject3dFloor);
-
+	graphicsEnviron->AddObject("floor", graphicsObject3dFloor);
 	graphicsEnviron->AddObject("poke1", poke1);
 	graphicsEnviron->AddObject("poke2", poke2);
 	graphicsEnviron->AddObject("attackBtn", attackBtn);
 	graphicsEnviron->AddObject("catchBtn", catchBtn);
-	graphicsEnviron->AddObject("floor", graphicsObject3dFloor);
 
 }
 // poke scene ends here
