@@ -9,6 +9,25 @@
 #include <memory>
 
 
+
+void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
+	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
+		// perform animation here
+		if (GraphicsEnvironment::self->GetObjManager()->GetObject("attackBtn")->IsIntersectingWithRay(GraphicsEnvironment::self->GetMouseRayVar())) {
+			// rotate left right left to simulate and attack rumble
+			//bool isMoving = std::static_pointer_cast<AttackAnimation>(objManager->GetObject("poke1")->GetAnimation())->GetMove();
+			std::static_pointer_cast<AttackAnimation>(GraphicsEnvironment::self->GetObjManager()->GetObject("poke1")->GetAnimation())->SetMove(true);
+		}
+
+		// if interseting with catch, spawn a ball
+
+		// if ball is spawned, clicking will throw it
+
+		// if swap is clicked, will swap to a random poke in inventory?
+	}
+}
+
+
 GraphicsEnvironment* GraphicsEnvironment::self;
 
 struct VertexData {
@@ -114,20 +133,6 @@ std::shared_ptr<Renderer> GraphicsEnvironment::GetRenderer(const std::string& na
 
 void GraphicsEnvironment::StaticAllocate()
 {
-	/*
-	for (const auto& pair : rendererMap) {
-		std::string key = pair.first;
-		std::shared_ptr<Renderer> renderer = pair.second;
-
-		// Process key and renderer
-
-		std::cout << "Key: " << key << ", Renderer: ";
-		renderer->AllocateVertexBuffers();
-		std::cout << std::endl;
-	}
-	*/
-
-
 	for (const auto& [name, renderer] : rendererMap) {
 		renderer->AllocateVertexBuffers();
 	}
@@ -136,19 +141,8 @@ void GraphicsEnvironment::StaticAllocate()
 
 void GraphicsEnvironment::Render()
 {
-	/*
-	for (const auto& pair : rendererMap) {
-		std::string key = pair.first;
-		std::shared_ptr<Renderer> renderer = pair.second;
-
-		// Process key and renderer
-		std::cout << "Key: " << key << ", Renderer: ";
-		renderer->RenderScene();
-		std::cout << std::endl;
-	}*/
-
 	for (const auto& [name, renderer] : rendererMap) {
-		renderer->RenderScene(*camera);  //is this the right syntax?
+		renderer->RenderScene(*camera); 
 	}
 
 }
@@ -196,7 +190,7 @@ void GraphicsEnvironment::ProcessInput(GLFWwindow* window, double elapsedSeconds
 
 	if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS) {
 		camera->SetLookFrame(glm::mat4(1.0f));
-		camera->SetPosition(glm::vec3(0.0f, 5.0f, 30.0f));
+		camera->SetPosition(glm::vec3(0.0f, 4.5f, 20.0f));
 		lookWithMouse = false;
 		return;
 	}
@@ -205,7 +199,7 @@ void GraphicsEnvironment::ProcessInput(GLFWwindow* window, double elapsedSeconds
 		glm::mat4 look(1.0f);
 		look = glm::rotate(look, glm::radians(90.0f), { 0, 1, 0 });
 		camera->SetLookFrame(look);
-		camera->SetPosition(glm::vec3(30.0f, 5.0f, 0.0f));
+		camera->SetPosition(glm::vec3(30.0f, 4.5f, 0.0f));
 		lookWithMouse = false;
 		return;
 	}
@@ -214,7 +208,7 @@ void GraphicsEnvironment::ProcessInput(GLFWwindow* window, double elapsedSeconds
 		glm::mat4 look(1.0f);
 		look = glm::rotate(look, glm::radians(180.0f), { 0, 1, 0 });
 		camera->SetLookFrame(look);
-		camera->SetPosition(glm::vec3(0.0f, 5.0f, -30.0f));
+		camera->SetPosition(glm::vec3(0.0f, 4.5f, -20.0f));
 		lookWithMouse = false;
 		return;
 	}
@@ -223,7 +217,7 @@ void GraphicsEnvironment::ProcessInput(GLFWwindow* window, double elapsedSeconds
 		glm::mat4 look(1.0f);
 		look = glm::rotate(look, glm::radians(-90.0f), { 0, 1, 0 });
 		camera->SetLookFrame(look);
-		camera->SetPosition(glm::vec3(-30.0f, 5.0f, 0.0f));
+		camera->SetPosition(glm::vec3(-30.0f, 4.5f, 0.0f));
 		lookWithMouse = false;
 		return;
 	}
@@ -235,10 +229,19 @@ void GraphicsEnvironment::ProcessInput(GLFWwindow* window, double elapsedSeconds
 	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
 		// starts the animation and a timer for how long it is pressed down
 		// releasing mouse button will fire the item
-		if (objManager->GetObject("globe")->IsIntersectingWithRay(mouseRayVar)) {
+		/*if (objManager->GetObject("globe")->IsIntersectingWithRay(mouseRayVar)) {
 			bool isMoving = std::static_pointer_cast<SlidingAnimation>(objManager->GetObject("globe")->GetAnimation())->GetMove();
 			std::static_pointer_cast<SlidingAnimation>(objManager->GetObject("globe")->GetAnimation())->SetMove(!isMoving);
+		}*/
+
+		/*
+		if (objManager->GetObject("attackBtn")->IsIntersectingWithRay(mouseRayVar)) {
+			// rotate left right left to simulate and attack rumble
+			//bool isMoving = std::static_pointer_cast<AttackAnimation>(objManager->GetObject("poke1")->GetAnimation())->GetMove();
+			std::static_pointer_cast<AttackAnimation>(objManager->GetObject("poke1")->GetAnimation())->SetMove(true);
 		}
+		*/
+
 		
 	}
 
@@ -264,103 +267,6 @@ glm::mat4 GraphicsEnvironment::CreateViewMatrix(const glm::vec3& position, const
 	view[3] = glm::vec4(position, 1.0f);
 	return glm::inverse(view);
 }
-
-void GraphicsEnvironment::Run2D()
-{
-
-	glm::vec3 clearColor = { 0.2f, 0.3f, 0.3f };
-
-	//glUseProgram(shader->GetShaderProgram());  // use new shaderProgram is this needed anymore?
-
-
-	// added the io back here
-	ImGuiIO& io = ImGui::GetIO();
-
-	float angle = 0, childAngle = 0;
-	float cameraX = -10, cameraY = 0;
-	glm::mat4 view;
-
-	Timer timer;
-	double elapsedSeconds;
-
-
-	while (!glfwWindowShouldClose(window)) {
-		elapsedSeconds = timer.GetElapsedTimeInSeconds();
-		ProcessInput(window, elapsedSeconds);
-
-		// moved projection matrix calc to here
-		int width, height;
-		glfwGetWindowSize(window, &width, &height);
-		float aspectRatio = width / (height * 1.0f);
-
-		float left = -50.0f;
-		float right = 50.0f;
-		float bottom = -50.0f;
-		float top = 50.0f;
-		left *= aspectRatio;
-		right *= aspectRatio;
-		glm::mat4 projection = glm::ortho(left, right, bottom, top, -1.0f, 1.0f);
-
-		glClearColor(clearColor.r, clearColor.g, clearColor.b, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
-
-		view = CreateViewMatrix(
-			glm::vec3(cameraX, cameraY, 1.0f),
-			glm::vec3(0.0f, 0.0f, -1.0f),
-			glm::vec3(0.0f, 1.0f, 0.0f)
-		);
-
-		// Update the objects in the scene
-		// should the update objects be in the render class?
-		for (auto& object : GetRenderer("renderer1")->GetScene()->GetObjects()) {
-			object->ResetOrientation();
-			object->RotateLocalZ(angle);
-			for (auto& child : object->GetChildren()) {
-				child->ResetOrientation();
-				child->RotateLocalZ(childAngle);
-			}
-		}
-
-		//GetRenderer("renderer1")->SetScene(scene);
-		GetRenderer("renderer1")->SetView(view);
-		GetRenderer("renderer1")->SetProjection(projection);
-		//GetRenderer("renderer2")->SetScene(textureScene);
-		GetRenderer("renderer2")->SetView(view);
-		GetRenderer("renderer2")->SetProjection(projection);
-
-
-		//StaticAllocate();
-
-		Render();
-
-
-		ImGui_ImplOpenGL3_NewFrame();
-		ImGui_ImplGlfw_NewFrame();
-		ImGui::NewFrame();
-		ImGui::Begin("Computing Interactive Graphics");
-		//ImGui::Text(shader->GetLog().c_str());
-		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)",
-			1000.0f / io.Framerate, io.Framerate);
-		ImGui::ColorEdit3("Background color", (float*)&clearColor.r);
-		ImGui::SliderFloat("Angle", &angle, 0, 360);
-		ImGui::SliderFloat("Child Angle", &childAngle, 0, 360);
-		ImGui::SliderFloat("Camera X", &cameraX, left, right);
-		ImGui::SliderFloat("Camera Y", &cameraY, bottom, top);
-		ImGui::End();
-		ImGui::Render();
-		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
-		glfwSwapBuffers(window);
-		glfwPollEvents();
-
-	}
-	ImGui_ImplOpenGL3_Shutdown();
-	ImGui_ImplGlfw_Shutdown();
-	ImGui::DestroyContext();
-
-	glfwTerminate();
-}
-
 
 void GraphicsEnvironment::Run3D()
 {	
@@ -391,7 +297,7 @@ void GraphicsEnvironment::Run3D()
 	glm::mat4 projection;
 	glm::mat4 referenceFrame(1.0f);
 	glm::vec3 clearColor = { 0.2f, 0.3f, 0.3f };
-	camera->SetPosition(glm::vec3(0.0f, 3.0f, 30.0f));
+	camera->SetPosition(glm::vec3(0.0f, 4.5f, 20.0f));
 
 
 	//bool lookWithMouse = false;
@@ -404,27 +310,38 @@ void GraphicsEnvironment::Run3D()
 	GeometricPlane plane;
 	Intersection intersection;
 	glm::vec3 floorIntersectionPoint{};
-	float crateDefaultAmbient = objManager->GetObject("Crate")->GetMaterial().ambientIntensity;
-	float cubeDefaultAmbient = objManager->GetObject("cube")->GetMaterial().ambientIntensity;
+	//float crateDefaultAmbient = objManager->GetObject("Crate")->GetMaterial().ambientIntensity;
+	//float cubeDefaultAmbient = objManager->GetObject("cube")->GetMaterial().ambientIntensity;
 
 
 	// add animation
-	std::shared_ptr<RotateAnimation> rotateAnimation =
-		std::make_shared<RotateAnimation>();
-	rotateAnimation->SetObject(objManager->GetObject("Crate"));
-	objManager->GetObject("Crate")->SetAnimation(rotateAnimation);
+	std::shared_ptr<RotateAnimation> rotateAnimation = std::make_shared<RotateAnimation>();
+	//rotateAnimation->SetObject(objManager->GetObject("Crate"));
+	//objManager->GetObject("Crate")->SetAnimation(rotateAnimation);
 
-	std::shared_ptr<SlidingAnimation> slideAnimation =
-		std::make_shared<SlidingAnimation>();
-	slideAnimation->SetObject(objManager->GetObject("globe"));
-	objManager->GetObject("globe")->SetAnimation(slideAnimation);
-	slideAnimation->SetMove(true);
+	std::shared_ptr<SlidingAnimation> slideAnimation = std::make_shared<SlidingAnimation>();
+	//slideAnimation->SetObject(objManager->GetObject("globe"));
+	//objManager->GetObject("globe")->SetAnimation(slideAnimation);
+	//slideAnimation->SetMove(true);
+	
+	// new attack animation here
+	std::shared_ptr<AttackAnimation> attackAnimation1 = std::make_shared<AttackAnimation>();
+	std::shared_ptr<AttackAnimation> attackAnimation2 = std::make_shared<AttackAnimation>();
+
+	attackAnimation1->SetObject(objManager->GetObject("poke1"));
+	objManager->GetObject("poke1")->SetAnimation(attackAnimation1);
+
+	//attackAnimation2->SetObject(objManager->GetObject("poke2"));
+	//objManager->GetObject("poke2")->SetAnimation(attackAnimation2);
 
 
 	// Set the behavior defaults for all objects
 	for (auto& [name, object] : objManager->GetObjectMap()) {
 		object->SetBehaviorDefaults();
 	}
+
+	// attempting to add mouse button callback code..
+	glfwSetMouseButtonCallback(window, mouseButtonCallback);
 
 	while (!glfwWindowShouldClose(window)) {
 		elapsedSeconds = timer.GetElapsedTimeInSeconds();
@@ -437,16 +354,16 @@ void GraphicsEnvironment::Run3D()
 		glClearColor(clearColor.r, clearColor.g, clearColor.b, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-		referenceFrame = glm::rotate(glm::mat4(1.0f), glm::radians(cubeYAngle), glm::vec3(0.0f, 1.0f, 0.0f));
-		referenceFrame = glm::rotate(referenceFrame, glm::radians(cubeXAngle), glm::vec3(1.0f, 0.0f, 0.0f));
-		referenceFrame = glm::rotate(referenceFrame, glm::radians(cubeZAngle), glm::vec3(0.0f, 0.0f, 1.0f));
+		//referenceFrame = glm::rotate(glm::mat4(1.0f), glm::radians(cubeYAngle), glm::vec3(0.0f, 1.0f, 0.0f));
+		//referenceFrame = glm::rotate(referenceFrame, glm::radians(cubeXAngle), glm::vec3(1.0f, 0.0f, 0.0f));
+		//referenceFrame = glm::rotate(referenceFrame, glm::radians(cubeZAngle), glm::vec3(0.0f, 0.0f, 1.0f));
 
 		//view = glm::lookAt(cameraPosition, cameraTarget, cameraUp);
 
 		// mouse settings
 		if (resetCameraPosition) {
 			camera->SetLookFrame(glm::mat4(1.0f));
-			camera->SetPosition(glm::vec4(0.0f, 3.0f, 20.0f, 1.0f));
+			camera->SetPosition(glm::vec4(0.0f, 4.5f, 20.0f, 1.0f));
 			resetCameraPosition = false;
 			lookWithMouse = false;
 		}
@@ -488,11 +405,20 @@ void GraphicsEnvironment::Run3D()
 			object->RotateLocalZ(cubeZAngle);
 		}*/
 
+		// if i want the buttons to move with the screen, can use this code
+		/*
+		glm::vec3 attackBtnPos = camera->GetPosition();
+		attackBtnPos = { attackBtnPos.x - 0.5f, attackBtnPos.y -0.4f, attackBtnPos.z - 1.0f };
+		objManager->GetObject("attackBtn")->SetPosition(attackBtnPos);
 
+		glm::vec3 catchBtnPos = camera->GetPosition();
+		catchBtnPos = { catchBtnPos.x + 0.5f, catchBtnPos.y - 0.4f, catchBtnPos.z - 1.0f };
+		objManager->GetObject("catchBtn")->SetPosition(catchBtnPos);
+		*/
 
-		// added this to point the lightbulb at the camera position and match the texture object to the light position
-		objManager->GetObject("lightbulb")->SetPosition(GetRenderer("renderer3d")->GetScene()->GetLocalLight().position);
-		objManager->GetObject("lightbulb")->PointAtTarget(camera->GetPosition());
+		// pointing the pokes at the camera
+		//objManager->GetObject("poke1")->PointAtTarget(camera->GetPosition());
+		//objManager->GetObject("poke2")->PointAtTarget(camera->GetPosition());
 
 
 		// this should work for all renderers now
@@ -505,7 +431,7 @@ void GraphicsEnvironment::Run3D()
 		Ray mouseRay = GetMouseRay(projection, view);
 		mouseRayVar = mouseRay;
 		float offset = plane.GetIntersectionOffset(mouseRay);
-		if (offset > 0) {
+		/*if (offset > 0) {
 			floorIntersectionPoint = mouseRay.GetIntersectionPoint(offset);
 			objManager->GetObject("pcLinesCylinder")->SetPosition({ (float)floorIntersectionPoint.x , (float)objManager->GetObject("pcLinesCylinder")->GetReferenceFrame()[3].y, (float)floorIntersectionPoint.z });
 		}
@@ -513,14 +439,14 @@ void GraphicsEnvironment::Run3D()
 		{
 			objManager->GetObject("pcLinesCylinder")->SetPosition({ 10.0f, 10.0f, 10.0f });
 		}
+		*/
 
 		GraphicStructures::HighlightParams hp = { {}, &mouseRay };
-		objManager->GetObject("cube")->
-			SetBehaviorParameters("highlight", hp);
-		objManager->GetObject("Crate")->
-			SetBehaviorParameters("highlight", hp);
-		objManager->GetObject("globe")->
-			SetBehaviorParameters("highlight", hp);
+		//objManager->GetObject("cube")->SetBehaviorParameters("highlight", hp);
+		//objManager->GetObject("Crate")->SetBehaviorParameters("highlight", hp);
+		//objManager->GetObject("globe")->SetBehaviorParameters("highlight", hp);
+		objManager->GetObject("attackBtn")->SetBehaviorParameters("highlight", hp);
+		objManager->GetObject("catchBtn")->SetBehaviorParameters("highlight", hp);
 		
 
 		// call update
@@ -531,7 +457,7 @@ void GraphicsEnvironment::Run3D()
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
-		ImGui::Begin("Computing Interactive Graphics");
+		ImGui::Begin("Poke Sim");
 		//ImGui::Text(message.c_str());  no result object anymore?
 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)",
 			1000.0f / io.Framerate, io.Framerate);
@@ -558,12 +484,12 @@ void GraphicsEnvironment::Run3D()
 		//ImGui::SliderFloat("Ambient Intensity Floor", &objManager->GetObject("floor")->GetMaterial().ambientIntensity, 0, 1);
 
 		// add a slider for box animation speed 
-		ImGui::SliderFloat("Animation Speed", &rotateAnimation->GetSpeed(), -360, 360);
-		ImGui::SliderFloat("Sliding Speed", &slideAnimation->GetSpeed(), 0, 120);
-		ImGui::Checkbox("Correct gamma", &correctGamma);
-		ImGui::SliderFloat("Local Light Position X", &GetRenderer("renderer3d")->GetScene()->GetLocalLight().position.x, -40, 40); 
-		ImGui::SliderFloat("Local Light Position Y", &GetRenderer("renderer3d")->GetScene()->GetLocalLight().position.y, -40, 40);
-		ImGui::SliderFloat("Local Light Position Z", &GetRenderer("renderer3d")->GetScene()->GetLocalLight().position.z, -40, 40); 
+		//ImGui::SliderFloat("Animation Speed", &rotateAnimation->GetSpeed(), -360, 360);
+		//ImGui::SliderFloat("Sliding Speed", &slideAnimation->GetSpeed(), 0, 120);
+		//ImGui::Checkbox("Correct gamma", &correctGamma);
+		//ImGui::SliderFloat("Local Light Position X", &GetRenderer("renderer3d")->GetScene()->GetLocalLight().position.x, -40, 40); 
+		//ImGui::SliderFloat("Local Light Position Y", &GetRenderer("renderer3d")->GetScene()->GetLocalLight().position.y, -40, 40);
+		//ImGui::SliderFloat("Local Light Position Z", &GetRenderer("renderer3d")->GetScene()->GetLocalLight().position.z, -40, 40); 
 		ImGui::Checkbox("Use mouse to look", &this->lookWithMouse);
 		ImGui::Checkbox("Reset camera position", &resetCameraPosition);
 		ImGui::End();
@@ -624,6 +550,16 @@ Ray GraphicsEnvironment::GetMouseRay(const glm::mat4& projection, const glm::mat
 	rayStartEye.w = 1;
 	ray.startPoint = viewInv * rayStartEye;
 	return ray;
+}
+
+std::shared_ptr<ObjectManager> GraphicsEnvironment::GetObjManager()
+{
+	return objManager;
+}
+
+Ray GraphicsEnvironment::GetMouseRayVar()
+{
+	return mouseRayVar;
 }
 
 

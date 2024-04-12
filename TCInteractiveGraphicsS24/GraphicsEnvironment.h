@@ -15,6 +15,7 @@
 #include "IAnimation.h"
 #include "RotateAnimation.h"
 #include "SlidingAnimation.h"
+#include "AttackAnimation.h"
 #include "Camera.h"
 #include "GraphicStructures.h"
 #include "Ray.h"
@@ -28,11 +29,11 @@ private:
     std::shared_ptr<ObjectManager> objManager;
     std::shared_ptr<Camera> camera;  
     GraphicStructures::MouseParams mouse;
-    static GraphicsEnvironment* self;
     bool lookWithMouse = false;
     Ray mouseRayVar;
 
 public:
+    static GraphicsEnvironment* self;
     GraphicsEnvironment();
     ~GraphicsEnvironment();
     GLFWwindow* GetWindow();
@@ -49,7 +50,7 @@ public:
     void StaticAllocate();
     void Render();
     glm::mat4 CreateViewMatrix(const glm::vec3& position, const glm::vec3& direction, const glm::vec3& up);
-    void Run2D();
+    //void Run2D();
     void Run3D();
     void AddObject(const std::string name, std::shared_ptr<GraphicsObject>
         object);
@@ -57,5 +58,7 @@ public:
     static void OnMouseMove(GLFWwindow* window, double mouseX, double mouseY);
     Ray GetMouseRay(const glm::mat4& projection, const glm::mat4&
         view);
+    std::shared_ptr<ObjectManager> GetObjManager();
+    Ray GetMouseRayVar();
 };
 

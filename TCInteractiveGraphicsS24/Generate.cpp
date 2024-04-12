@@ -183,7 +183,7 @@ std::shared_ptr<VertexBuffer> Generate::XZPlaneNorm(float width, float depth, gl
     float halfWidth = width / 2;
     float halfDepth = depth / 2;
 
-    // top face  with 6 vertices and no indexed buffer?
+    // top face  with 6 vertices and no indexed buffer
     vertexBufferFloor->AddVertexData(12, -halfWidth, 0, -halfDepth, color.r, color.g, color.b, color.a, 0, normal[1], 0, 0, tex.t);
     vertexBufferFloor->AddVertexData(12, -halfWidth, 0, halfDepth, color.r, color.g, color.b, color.a, 0, normal[1], 0, 0, 0);
     vertexBufferFloor->AddVertexData(12, halfWidth, 0, halfDepth, color.r, color.g, color.b, color.a, 0, normal[1], 0, tex.s, 0);
@@ -191,7 +191,7 @@ std::shared_ptr<VertexBuffer> Generate::XZPlaneNorm(float width, float depth, gl
     vertexBufferFloor->AddVertexData(12, halfWidth, 0, halfDepth, color.r, color.g, color.b, color.a, 0, normal[1], 0, tex.s, 0);
     vertexBufferFloor->AddVertexData(12, halfWidth, 0, -halfDepth, color.r, color.g, color.b, color.a, 0, normal[1], 0, tex.s, tex.t);
 
-    // bottom face  with 6 vertices and no indexed buffer?
+    // bottom face  with 6 vertices and no indexed buffer
     vertexBufferFloor->AddVertexData(12, halfWidth, 0, -halfDepth, color.r, color.g, color.b, color.a, 0, -normal[1], 0, 0, tex.t);
     vertexBufferFloor->AddVertexData(12, halfWidth, 0, halfDepth, color.r, color.g, color.b, color.a, 0, -normal[1], 0, 0, 0);
     vertexBufferFloor->AddVertexData(12, -halfWidth, 0, halfDepth, color.r, color.g, color.b, color.a, 0, -normal[1], 0, tex.s, 0);
@@ -203,29 +203,49 @@ std::shared_ptr<VertexBuffer> Generate::XZPlaneNorm(float width, float depth, gl
 }
 
 
+
+
 std::shared_ptr<VertexBuffer> Generate::XYPlaneNorm(float width, float height, glm::vec4 color, glm::vec3 normal, glm::vec2 tex)
 {
-    std::shared_ptr<VertexBuffer> vertexBufferFloor = std::make_shared<VertexBuffer>(12);
+    std::shared_ptr<VertexBuffer> vertexBufferPlane = std::make_shared<VertexBuffer>(12);
     float halfWidth = width / 2;
     float halfHeight = height / 2;
 
-    // front face  with 6 vertices and no indexed buffer?
-    vertexBufferFloor->AddVertexData(12, -halfWidth, halfHeight, 0, color.r, color.g, color.b, color.a, 0, 0, normal[2], 0, tex.t);
-    vertexBufferFloor->AddVertexData(12, -halfWidth, -halfHeight, 0, color.r, color.g, color.b, color.a, 0, 0, normal[2], 0, 0);
-    vertexBufferFloor->AddVertexData(12, halfWidth, -halfHeight, 0, color.r, color.g, color.b, color.a, 0, 0, normal[2], tex.s, 0);
-    vertexBufferFloor->AddVertexData(12, -halfWidth, halfHeight, 0, color.r, color.g, color.b, color.a, 0, 0, normal[2], 0, tex.t);
-    vertexBufferFloor->AddVertexData(12, halfWidth, -halfHeight, 0, color.r, color.g, color.b, color.a, 0, 0, normal[2], tex.s, 0);
-    vertexBufferFloor->AddVertexData(12, halfWidth, halfHeight, 0, color.r, color.g, color.b, color.a, 0, 0, normal[2], tex.s, tex.t);
+    // front face  with 6 vertices and no indexed buffer
+    vertexBufferPlane->AddVertexData(12, -halfWidth, halfHeight, 0, color.r, color.g, color.b, color.a, 0, 0, normal[2], 0, tex.t);
+    vertexBufferPlane->AddVertexData(12, -halfWidth, -halfHeight, 0, color.r, color.g, color.b, color.a, 0, 0, normal[2], 0, 0);
+    vertexBufferPlane->AddVertexData(12, halfWidth, -halfHeight, 0, color.r, color.g, color.b, color.a, 0, 0, normal[2], tex.s, 0);
+    vertexBufferPlane->AddVertexData(12, -halfWidth, halfHeight, 0, color.r, color.g, color.b, color.a, 0, 0, normal[2], 0, tex.t);
+    vertexBufferPlane->AddVertexData(12, halfWidth, -halfHeight, 0, color.r, color.g, color.b, color.a, 0, 0, normal[2], tex.s, 0);
+    vertexBufferPlane->AddVertexData(12, halfWidth, halfHeight, 0, color.r, color.g, color.b, color.a, 0, 0, normal[2], tex.s, tex.t);
 
-    // back face  with 6 vertices and no indexed buffer?
-    vertexBufferFloor->AddVertexData(12, halfWidth, halfHeight, 0, color[0], color[1], color.b, color.a, 0, 0, -normal[2], 0, tex[1]);
-    vertexBufferFloor->AddVertexData(12, halfWidth, -halfHeight, 0, color[0], color[1], color.b, color.a, 0, 0, -normal[2], 0, 0);
-    vertexBufferFloor->AddVertexData(12, -halfWidth, -halfHeight, 0, color[0], color[1], color.b, color.a, 0, 0, -normal[2], tex[0], 0);
-    vertexBufferFloor->AddVertexData(12, halfWidth, halfHeight, 0, color[0], color[1], color.b, color.a, 0, 0, -normal[2], 0, tex[1]);
-    vertexBufferFloor->AddVertexData(12, -halfWidth, -halfHeight, 0, color[0], color[1], color.b, color.a, 0, 0, -normal[2], tex[0], 0);
-    vertexBufferFloor->AddVertexData(12, -halfWidth, halfHeight, 0, color[0], color[1], color.b, color.a, 0, 0, -normal[2], tex[0], tex[1]);
+    // back face  with 6 vertices and no indexed buffer
+    vertexBufferPlane->AddVertexData(12, halfWidth, halfHeight, 0, color[0], color[1], color.b, color.a, 0, 0, -normal[2], 0, tex.t);
+    vertexBufferPlane->AddVertexData(12, halfWidth, -halfHeight, 0, color[0], color[1], color.b, color.a, 0, 0, -normal[2], 0, 0);
+    vertexBufferPlane->AddVertexData(12, -halfWidth, -halfHeight, 0, color[0], color[1], color.b, color.a, 0, 0, -normal[2], tex.s, 0);
+    vertexBufferPlane->AddVertexData(12, halfWidth, halfHeight, 0, color[0], color[1], color.b, color.a, 0, 0, -normal[2], 0, tex.t);
+    vertexBufferPlane->AddVertexData(12, -halfWidth, -halfHeight, 0, color[0], color[1], color.b, color.a, 0, 0, -normal[2], tex.s, 0);
+    vertexBufferPlane->AddVertexData(12, -halfWidth, halfHeight, 0, color[0], color[1], color.b, color.a, 0, 0, -normal[2], tex.s, tex.t);
 
-    return vertexBufferFloor;
+    return vertexBufferPlane;
+}
+
+
+std::shared_ptr<VertexBuffer> Generate::XYPlaneNormReverse(float width, float height, glm::vec4 color, glm::vec3 normal, glm::vec2 tex)
+{
+    std::shared_ptr<VertexBuffer> vertexBufferPlane = std::make_shared<VertexBuffer>(12);
+    float halfWidth = width / 2;
+    float halfHeight = height / 2;
+
+    // front face  with 6 vertices and no indexed buffer
+    vertexBufferPlane->AddVertexData(12, -halfWidth, halfHeight, 0, color.r, color.g, color.b, color.a, 0, 0, normal[2], 1.0f, 1.0f); // top left
+    vertexBufferPlane->AddVertexData(12, -halfWidth, -halfHeight, 0, color.r, color.g, color.b, color.a, 0, 0, normal[2], 1.0f, 0.0f); // bottom left
+    vertexBufferPlane->AddVertexData(12, halfWidth, -halfHeight, 0, color.r, color.g, color.b, color.a, 0, 0, normal[2], 0.0f, 0.0f); // bottom right
+    vertexBufferPlane->AddVertexData(12, -halfWidth, halfHeight, 0, color.r, color.g, color.b, color.a, 0, 0, normal[2], 1.0f, 1.0f); // top left
+    vertexBufferPlane->AddVertexData(12, halfWidth, -halfHeight, 0, color.r, color.g, color.b, color.a, 0, 0, normal[2], 0.0f, 0.0f); //bottom right
+    vertexBufferPlane->AddVertexData(12, halfWidth, halfHeight, 0, color.r, color.g, color.b, color.a, 0, 0, normal[2], 0.0f, 1.0f); // top right
+
+    return vertexBufferPlane;
 }
 
 void Generate::GenerateXZCircle(double radius, glm::vec3 color, int steps, std::shared_ptr<VertexBuffer> bufferToFill)
