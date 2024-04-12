@@ -21,6 +21,7 @@ void AttackAnimation::Update(double elapsedSeconds)
 	//referenceFrame = glm::rotate(referenceFrame, glm::radians(deltaSpeed),
 	//	direction);
 	bool firstPassCompleted = false;
+	bool secondPassCompleted = false;
 	bool completed = false;
 	while (!completed && isMoving)
 	{
@@ -28,24 +29,26 @@ void AttackAnimation::Update(double elapsedSeconds)
 		{
 			referenceFrame = glm::rotate(referenceFrame, glm::radians(deltaSpeed), direction);
 			distanceMoved = abs(deltaSpeed) + distanceMoved;
-			if (firstPassCompleted)
-			{
-				completed = true;
-			}
 		}
 		else if (!firstPassCompleted && isMoving && distanceMoved >= distanceToMove)
 		{
 			distanceMoved = 0;
 			distanceToMove = distanceToMove * 2;
 			direction = -direction;
+			firstPassCompleted = true;
 		}
-		else if (firstPassCompleted && isMoving && distanceMoved >= distanceToMove)
+		else if (firstPassCompleted && !secondPassCompleted && isMoving && distanceMoved >= distanceToMove)
 		{
 			distanceMoved = 0;
 			distanceToMove = distanceToMove / 2;
 			direction = -direction;
+			secondPassCompleted = true;
 		}
-		firstPassCompleted = true;
+		else if (firstPassCompleted && secondPassCompleted && isMoving && distanceMoved >= distanceToMove)
+		{
+			completed = true;
+		}
+		//firstPassCompleted = true;
 	}
 	isMoving = false;
 }

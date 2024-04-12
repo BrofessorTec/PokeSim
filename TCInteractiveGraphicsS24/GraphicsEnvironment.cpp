@@ -9,6 +9,25 @@
 #include <memory>
 
 
+
+void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
+	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
+		// perform animation here
+		if (GraphicsEnvironment::self->GetObjManager()->GetObject("attackBtn")->IsIntersectingWithRay(GraphicsEnvironment::self->GetMouseRayVar())) {
+			// rotate left right left to simulate and attack rumble
+			//bool isMoving = std::static_pointer_cast<AttackAnimation>(objManager->GetObject("poke1")->GetAnimation())->GetMove();
+			std::static_pointer_cast<AttackAnimation>(GraphicsEnvironment::self->GetObjManager()->GetObject("poke1")->GetAnimation())->SetMove(true);
+		}
+
+		// if interseting with catch, spawn a ball
+
+		// if ball is spawned, clicking will throw it
+
+		// if swap is clicked, will swap to a random poke in inventory?
+	}
+}
+
+
 GraphicsEnvironment* GraphicsEnvironment::self;
 
 struct VertexData {
@@ -215,13 +234,13 @@ void GraphicsEnvironment::ProcessInput(GLFWwindow* window, double elapsedSeconds
 			std::static_pointer_cast<SlidingAnimation>(objManager->GetObject("globe")->GetAnimation())->SetMove(!isMoving);
 		}*/
 
-		
+		/*
 		if (objManager->GetObject("attackBtn")->IsIntersectingWithRay(mouseRayVar)) {
 			// rotate left right left to simulate and attack rumble
 			//bool isMoving = std::static_pointer_cast<AttackAnimation>(objManager->GetObject("poke1")->GetAnimation())->GetMove();
 			std::static_pointer_cast<AttackAnimation>(objManager->GetObject("poke1")->GetAnimation())->SetMove(true);
 		}
-		
+		*/
 
 		
 	}
@@ -320,6 +339,9 @@ void GraphicsEnvironment::Run3D()
 	for (auto& [name, object] : objManager->GetObjectMap()) {
 		object->SetBehaviorDefaults();
 	}
+
+	// attempting to add mouse button callback code..
+	glfwSetMouseButtonCallback(window, mouseButtonCallback);
 
 	while (!glfwWindowShouldClose(window)) {
 		elapsedSeconds = timer.GetElapsedTimeInSeconds();
@@ -528,6 +550,16 @@ Ray GraphicsEnvironment::GetMouseRay(const glm::mat4& projection, const glm::mat
 	rayStartEye.w = 1;
 	ray.startPoint = viewInv * rayStartEye;
 	return ray;
+}
+
+std::shared_ptr<ObjectManager> GraphicsEnvironment::GetObjManager()
+{
+	return objManager;
+}
+
+Ray GraphicsEnvironment::GetMouseRayVar()
+{
+	return mouseRayVar;
 }
 
 
