@@ -287,6 +287,12 @@ static void SetUpBackgroundScene(std::shared_ptr<Shader>&
 	std::shared_ptr<Texture> backgroundTex = std::make_shared<Texture>();
 	backgroundTex->LoadTextureDataFromFile("..\\3rdparty\\Background.jpg");
 
+	// adjusting the texture settings here
+	backgroundTex->SetWrapS(GL_MIRRORED_REPEAT);
+	backgroundTex->SetWrapT(GL_MIRRORED_REPEAT);
+	backgroundTex->SetMagFilter(GL_NEAREST);
+	backgroundTex->SetMinFilter(GL_NEAREST);
+
 
 	backgroundBuffer->SetTexture(backgroundTex);
 	background->SetVertexBuffer(backgroundBuffer);
@@ -294,6 +300,33 @@ static void SetUpBackgroundScene(std::shared_ptr<Shader>&
 
 	backgroundScene->AddObject(background);
 	graphicsEnviron->AddObject("background", background);
+
+	// new sky texture
+	std::shared_ptr<GraphicsObject> sky = std::make_shared<GraphicsObject>();
+
+	std::shared_ptr<VertexBuffer> skyBuffer = Generate::XYPlane(180, 90);
+
+	skyBuffer->AddVertexAttribute("position", 0, 3, 0);
+	skyBuffer->AddVertexAttribute("vertexColor", 1, 3, 3);
+	skyBuffer->AddVertexAttribute("texCoord", 2, 2, 6);
+
+
+	std::shared_ptr<Texture> skyTex = std::make_shared<Texture>();
+	skyTex->LoadTextureDataFromFile("..\\3rdparty\\Sky.jpg");
+
+	// adjusting the texture settings here
+	skyTex->SetWrapS(GL_MIRRORED_REPEAT);
+	skyTex->SetWrapT(GL_MIRRORED_REPEAT);
+	skyTex->SetMagFilter(GL_NEAREST);
+	skyTex->SetMinFilter(GL_NEAREST);
+
+
+	skyBuffer->SetTexture(skyTex);
+	sky->SetVertexBuffer(skyBuffer);
+	sky->SetPosition(glm::vec3(0.0f, 90.0f, -76.0f));
+
+	backgroundScene->AddObject(sky);
+	graphicsEnviron->AddObject("sky", sky);
 
 	// setting dirt floor here
 	std::shared_ptr<GraphicsObject> floor = std::make_shared<GraphicsObject>();
@@ -307,6 +340,12 @@ static void SetUpBackgroundScene(std::shared_ptr<Shader>&
 
 	std::shared_ptr<Texture> floorTex = std::make_shared<Texture>();
 	floorTex->LoadTextureDataFromFile("..\\3rdparty\\Ground.jpg");
+
+	// adjusting the texture settings here
+	floorTex->SetWrapS(GL_MIRRORED_REPEAT);
+	floorTex->SetWrapT(GL_MIRRORED_REPEAT);
+	floorTex->SetMagFilter(GL_NEAREST);
+	floorTex->SetMinFilter(GL_NEAREST);
 
 
 	floorBuffer->SetTexture(floorTex);
@@ -688,6 +727,9 @@ static void SetUp3DScene2(std::shared_ptr<Shader>& shader3d,
 
 
 }
+
+
+
 
 // new ray scene here
 static void SetUpPCObjectsScene(

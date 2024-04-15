@@ -11,6 +11,7 @@
 
 
 void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
+	// making this right click for now so IMGui doesnt break
 	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
 		// perform animation here
 		if (GraphicsEnvironment::self->GetObjManager()->GetObject("attackBtn")->IsIntersectingWithRay(GraphicsEnvironment::self->GetMouseRayVar())) {
@@ -81,6 +82,11 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 		*/
 	}
 	// can do this for 1-6 for the player's inventory, or less if desired
+
+	if (key == GLFW_KEY_F2 && action == GLFW_PRESS) {
+		GraphicsEnvironment::self->SetLookWithMouse(!GraphicsEnvironment::self->GetLookWithMouse());
+		return;
+	}
 }
 
 
@@ -150,6 +156,13 @@ void GraphicsEnvironment::SetUpGraphics()
 	// on mouse move callback
 	glfwSetCursorPosCallback(window, OnMouseMove);
 	glfwSetFramebufferSizeCallback(window, OnWindowSizeChanged);
+
+	// attempting to add mouse button callback code..
+	glfwSetMouseButtonCallback(window, mouseButtonCallback);
+
+	// Setting up keyboard callbacks here for poke swap
+	glfwSetKeyCallback(window, keyCallback);
+
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	//ImGuiIO& io = ImGui::GetIO();
@@ -238,11 +251,12 @@ void GraphicsEnvironment::ProcessInput(GLFWwindow* window, double elapsedSeconds
 		camera->MoveDown(elapsedSeconds);
 		return;
 	}
-
+	/*
 	if (glfwGetKey(window, GLFW_KEY_F2) == GLFW_PRESS) {
 		lookWithMouse = !lookWithMouse;
 		return;
 	}
+	*/
 	/* changing this to a callback for now
 	if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS) {
 		glm::vec3 placeholderPos = static_cast<glm::vec3>(objManager->GetObject("poke1")->GetReferenceFrame()[3]);
@@ -359,7 +373,7 @@ void GraphicsEnvironment::Run3D()
 
 	float aspectRatio;
 	float nearPlane = 1.0f;
-	float farPlane = 100.0f;
+	float farPlane = 200.0f;
 	float fieldOfView = 60;
 
 	//glm::vec3 cameraPosition(15.0f, 15.0f, 20.0f);
@@ -413,12 +427,6 @@ void GraphicsEnvironment::Run3D()
 	for (auto& [name, object] : objManager->GetObjectMap()) {
 		object->SetBehaviorDefaults();
 	}
-
-	// attempting to add mouse button callback code..
-	glfwSetMouseButtonCallback(window, mouseButtonCallback);
-
-	// Setting up keyboard callbacks here for poke swap
-	glfwSetKeyCallback(window, keyCallback);
 
 	while (!glfwWindowShouldClose(window)) {
 		elapsedSeconds = timer.GetElapsedTimeInSeconds();
@@ -637,6 +645,16 @@ std::shared_ptr<ObjectManager> GraphicsEnvironment::GetObjManager()
 Ray GraphicsEnvironment::GetMouseRayVar()
 {
 	return mouseRayVar;
+}
+
+bool GraphicsEnvironment::GetLookWithMouse()
+{
+	return lookWithMouse;
+}
+
+void GraphicsEnvironment::SetLookWithMouse(bool setting)
+{
+	lookWithMouse = setting;
 }
 
 
