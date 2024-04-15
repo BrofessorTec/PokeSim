@@ -11,6 +11,7 @@
 
 
 void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
+	// making this right click for now so IMGui doesnt break
 	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
 		// perform animation here
 		if (GraphicsEnvironment::self->GetObjManager()->GetObject("attackBtn")->IsIntersectingWithRay(GraphicsEnvironment::self->GetMouseRayVar())) {
@@ -24,6 +25,67 @@ void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
 		// if ball is spawned, clicking will throw it
 
 		// if swap is clicked, will swap to a random poke in inventory?
+	}
+}
+
+
+// poke swap code here
+void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+	// for 1
+	std::shared_ptr<ObjectManager> objManager = GraphicsEnvironment::self->GetObjManager();
+	std::string currSel = objManager->GetCurrPokeSel();
+	std::string sel1 = objManager->GetPoke1Sel();
+	std::string sel2 = objManager->GetPoke2Sel();;
+
+
+
+	if (key == GLFW_KEY_1 && action == GLFW_PRESS) {
+		std::string placeholderSelName = currSel;
+		glm::vec3 placeholderPos = static_cast<glm::vec3>(objManager->GetObject(currSel)->GetReferenceFrame()[3]);
+		objManager->GetObject(currSel)->SetPosition(objManager->GetObject(sel1)->GetReferenceFrame()[3]);
+		objManager->GetObject(sel1)->SetPosition(placeholderPos);
+		objManager->SetCurrPokeSel(sel1);
+		objManager->SetPoke1Sel(placeholderSelName);
+		return;
+		
+
+		/*
+		// this should actually change out the object to work correctly and not just change the position..?
+		std::shared_ptr<GraphicsObject> placeholderObj = GraphicsEnvironment::self->GetObjManager()->GetObject("poke1");
+		std::shared_ptr<GraphicsObject> newObj = GraphicsEnvironment::self->GetObjManager()->GetObject("poke1Side");
+
+		GraphicsEnvironment::self->GetObjManager()->SetObject("poke1", newObj);
+		GraphicsEnvironment::self->GetObjManager()->SetObject("poke1Side", placeholderObj);
+		return;
+		*/
+
+	}
+	// for 2
+	if (key == GLFW_KEY_2 && action == GLFW_PRESS) {
+		std::string placeholderSelName = currSel;
+		glm::vec3 placeholderPos = static_cast<glm::vec3>(objManager->GetObject(currSel)->GetReferenceFrame()[3]);
+		objManager->GetObject(currSel)->SetPosition(objManager->GetObject(sel2)->GetReferenceFrame()[3]);
+		objManager->GetObject(sel2)->SetPosition(placeholderPos);
+		objManager->SetCurrPokeSel(sel2);
+		objManager->SetPoke2Sel(placeholderSelName);
+		return;
+
+		/*
+		// this should actually change out the object to work correctly and not just change the position..?
+		std::shared_ptr<GraphicsObject> placeholderObj = GraphicsEnvironment::self->GetObjManager()->GetObject("poke1");
+		std::shared_ptr<GraphicsObject> newObj = GraphicsEnvironment::self->GetObjManager()->GetObject("poke2Side");
+
+		GraphicsEnvironment::self->GetObjManager()->SetObject("poke1", newObj);
+		GraphicsEnvironment::self->GetObjManager()->SetObject("poke2Side", placeholderObj);
+
+		return;
+		*/
+	}
+	// can do this for 1-6 for the player's inventory, or less if desired
+
+	if (key == GLFW_KEY_F2 && action == GLFW_PRESS) {
+		GraphicsEnvironment::self->SetLookWithMouse(!GraphicsEnvironment::self->GetLookWithMouse());
+		return;
 	}
 }
 
@@ -94,6 +156,13 @@ void GraphicsEnvironment::SetUpGraphics()
 	// on mouse move callback
 	glfwSetCursorPosCallback(window, OnMouseMove);
 	glfwSetFramebufferSizeCallback(window, OnWindowSizeChanged);
+
+	// attempting to add mouse button callback code..
+	glfwSetMouseButtonCallback(window, mouseButtonCallback);
+
+	// Setting up keyboard callbacks here for poke swap
+	glfwSetKeyCallback(window, keyCallback);
+
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	//ImGuiIO& io = ImGui::GetIO();
@@ -144,7 +213,7 @@ void GraphicsEnvironment::Render()
 	for (const auto& [name, renderer] : rendererMap) {
 		renderer->RenderScene(*camera); 
 	}
-
+	// might need to change this so that the current user poke is the only one rendered for the scene?
 }
 
 void GraphicsEnvironment::ProcessInput(GLFWwindow* window, double elapsedSeconds)
@@ -182,16 +251,18 @@ void GraphicsEnvironment::ProcessInput(GLFWwindow* window, double elapsedSeconds
 		camera->MoveDown(elapsedSeconds);
 		return;
 	}
-
+	/*
 	if (glfwGetKey(window, GLFW_KEY_F2) == GLFW_PRESS) {
 		lookWithMouse = !lookWithMouse;
 		return;
 	}
-
+	*/
+	/* changing this to a callback for now
 	if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS) {
-		camera->SetLookFrame(glm::mat4(1.0f));
-		camera->SetPosition(glm::vec3(0.0f, 4.5f, 20.0f));
-		lookWithMouse = false;
+		glm::vec3 placeholderPos = static_cast<glm::vec3>(objManager->GetObject("poke1")->GetReferenceFrame()[3]);
+		objManager->GetObject("poke1")->SetPosition(objManager->GetObject("poke1Side")->GetReferenceFrame()[3]);
+		objManager->GetObject("poke1Side")->SetPosition(placeholderPos);
+
 		return;
 	}
 
@@ -199,7 +270,7 @@ void GraphicsEnvironment::ProcessInput(GLFWwindow* window, double elapsedSeconds
 		glm::mat4 look(1.0f);
 		look = glm::rotate(look, glm::radians(90.0f), { 0, 1, 0 });
 		camera->SetLookFrame(look);
-		camera->SetPosition(glm::vec3(30.0f, 4.5f, 0.0f));
+		camera->SetPosition(glm::vec3(30.0f, 5.5f, 0.0f));
 		lookWithMouse = false;
 		return;
 	}
@@ -208,7 +279,7 @@ void GraphicsEnvironment::ProcessInput(GLFWwindow* window, double elapsedSeconds
 		glm::mat4 look(1.0f);
 		look = glm::rotate(look, glm::radians(180.0f), { 0, 1, 0 });
 		camera->SetLookFrame(look);
-		camera->SetPosition(glm::vec3(0.0f, 4.5f, -20.0f));
+		camera->SetPosition(glm::vec3(0.0f, 5.5f, -20.0f));
 		lookWithMouse = false;
 		return;
 	}
@@ -217,7 +288,23 @@ void GraphicsEnvironment::ProcessInput(GLFWwindow* window, double elapsedSeconds
 		glm::mat4 look(1.0f);
 		look = glm::rotate(look, glm::radians(-90.0f), { 0, 1, 0 });
 		camera->SetLookFrame(look);
-		camera->SetPosition(glm::vec3(-30.0f, 4.5f, 0.0f));
+		camera->SetPosition(glm::vec3(-30.0f, 5.5f, 0.0f));
+		lookWithMouse = false;
+		return;
+	}
+	*/
+
+	// shifts to the side scene for testing
+	if (glfwGetKey(window, GLFW_KEY_0) == GLFW_PRESS) {
+		camera->SetLookFrame(glm::mat4(1.0f));
+		camera->SetPosition(glm::vec3(60.0f, 5.5f, 22.5f));
+		lookWithMouse = false;
+		return;
+	}
+	// sends camera back to initial scene for testing
+	if (glfwGetKey(window, GLFW_KEY_9) == GLFW_PRESS) {
+		camera->SetLookFrame(glm::mat4(1.0f));
+		camera->SetPosition(glm::vec3(0.0f, 5.5f, 22.5f));
 		lookWithMouse = false;
 		return;
 	}
@@ -286,7 +373,7 @@ void GraphicsEnvironment::Run3D()
 
 	float aspectRatio;
 	float nearPlane = 1.0f;
-	float farPlane = 100.0f;
+	float farPlane = 200.0f;
 	float fieldOfView = 60;
 
 	//glm::vec3 cameraPosition(15.0f, 15.0f, 20.0f);
@@ -297,7 +384,7 @@ void GraphicsEnvironment::Run3D()
 	glm::mat4 projection;
 	glm::mat4 referenceFrame(1.0f);
 	glm::vec3 clearColor = { 0.2f, 0.3f, 0.3f };
-	camera->SetPosition(glm::vec3(0.0f, 4.5f, 20.0f));
+	camera->SetPosition(glm::vec3(0.0f, 5.5f, 22.5f));
 
 
 	//bool lookWithMouse = false;
@@ -310,7 +397,8 @@ void GraphicsEnvironment::Run3D()
 	GeometricPlane plane;
 	Intersection intersection;
 	glm::vec3 floorIntersectionPoint{};
-	//float crateDefaultAmbient = objManager->GetObject("Crate")->GetMaterial().ambientIntensity;
+	//float crateDefaultAmbient = objManager->GetObject("Crate")->GetMaterial().ambient
+	// ;
 	//float cubeDefaultAmbient = objManager->GetObject("cube")->GetMaterial().ambientIntensity;
 
 
@@ -340,9 +428,6 @@ void GraphicsEnvironment::Run3D()
 		object->SetBehaviorDefaults();
 	}
 
-	// attempting to add mouse button callback code..
-	glfwSetMouseButtonCallback(window, mouseButtonCallback);
-
 	while (!glfwWindowShouldClose(window)) {
 		elapsedSeconds = timer.GetElapsedTimeInSeconds();
 		ProcessInput(window, elapsedSeconds);
@@ -363,7 +448,7 @@ void GraphicsEnvironment::Run3D()
 		// mouse settings
 		if (resetCameraPosition) {
 			camera->SetLookFrame(glm::mat4(1.0f));
-			camera->SetPosition(glm::vec4(0.0f, 4.5f, 20.0f, 1.0f));
+			camera->SetPosition(glm::vec4(0.0f, 5.5f, 25.0f, 1.0f));
 			resetCameraPosition = false;
 			lookWithMouse = false;
 		}
@@ -560,6 +645,16 @@ std::shared_ptr<ObjectManager> GraphicsEnvironment::GetObjManager()
 Ray GraphicsEnvironment::GetMouseRayVar()
 {
 	return mouseRayVar;
+}
+
+bool GraphicsEnvironment::GetLookWithMouse()
+{
+	return lookWithMouse;
+}
+
+void GraphicsEnvironment::SetLookWithMouse(bool setting)
+{
+	lookWithMouse = setting;
 }
 
 

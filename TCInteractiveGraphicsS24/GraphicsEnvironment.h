@@ -60,5 +60,7 @@ public:
         view);
     std::shared_ptr<ObjectManager> GetObjManager();
     Ray GetMouseRayVar();
+    bool GetLookWithMouse();
+    void SetLookWithMouse(bool setting);
 };
 
