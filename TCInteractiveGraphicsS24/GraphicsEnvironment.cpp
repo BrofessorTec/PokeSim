@@ -28,6 +28,20 @@ void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
 }
 
 
+// poke swap code here
+void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+	// for 1
+	if (key == GLFW_KEY_1 && action == GLFW_PRESS) {
+		glm::vec3 placeholderPos = static_cast<glm::vec3>(GraphicsEnvironment::self->GetObjManager()->GetObject("poke1")->GetReferenceFrame()[3]);
+		GraphicsEnvironment::self->GetObjManager()->GetObject("poke1")->SetPosition(GraphicsEnvironment::self->GetObjManager()->GetObject("poke1Side")->GetReferenceFrame()[3]);
+		GraphicsEnvironment::self->GetObjManager()->GetObject("poke1Side")->SetPosition(placeholderPos);
+
+		return;
+	}
+	// can do this for 1-6 for the player's inventory, or less if desired
+}
+
+
 GraphicsEnvironment* GraphicsEnvironment::self;
 
 struct VertexData {
@@ -144,7 +158,7 @@ void GraphicsEnvironment::Render()
 	for (const auto& [name, renderer] : rendererMap) {
 		renderer->RenderScene(*camera); 
 	}
-
+	// might need to change this so that the current user poke is the only one rendered for the scene?
 }
 
 void GraphicsEnvironment::ProcessInput(GLFWwindow* window, double elapsedSeconds)
@@ -187,13 +201,15 @@ void GraphicsEnvironment::ProcessInput(GLFWwindow* window, double elapsedSeconds
 		lookWithMouse = !lookWithMouse;
 		return;
 	}
-
+	/* changing this to a callback for now
 	if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS) {
-		camera->SetLookFrame(glm::mat4(1.0f));
-		camera->SetPosition(glm::vec3(0.0f, 5.5f, 22.5f));
-		lookWithMouse = false;
+		glm::vec3 placeholderPos = static_cast<glm::vec3>(objManager->GetObject("poke1")->GetReferenceFrame()[3]);
+		objManager->GetObject("poke1")->SetPosition(objManager->GetObject("poke1Side")->GetReferenceFrame()[3]);
+		objManager->GetObject("poke1Side")->SetPosition(placeholderPos);
+
 		return;
 	}
+	*/
 
 	if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS) {
 		glm::mat4 look(1.0f);
@@ -218,6 +234,21 @@ void GraphicsEnvironment::ProcessInput(GLFWwindow* window, double elapsedSeconds
 		look = glm::rotate(look, glm::radians(-90.0f), { 0, 1, 0 });
 		camera->SetLookFrame(look);
 		camera->SetPosition(glm::vec3(-30.0f, 5.5f, 0.0f));
+		lookWithMouse = false;
+		return;
+	}
+
+	// shifts to the side scene for testing
+	if (glfwGetKey(window, GLFW_KEY_0) == GLFW_PRESS) {
+		camera->SetLookFrame(glm::mat4(1.0f));
+		camera->SetPosition(glm::vec3(60.0f, 5.5f, 22.5f));
+		lookWithMouse = false;
+		return;
+	}
+	// sends camera back to initial scene for testing
+	if (glfwGetKey(window, GLFW_KEY_9) == GLFW_PRESS) {
+		camera->SetLookFrame(glm::mat4(1.0f));
+		camera->SetPosition(glm::vec3(0.0f, 5.5f, 22.5f));
 		lookWithMouse = false;
 		return;
 	}
@@ -343,6 +374,9 @@ void GraphicsEnvironment::Run3D()
 
 	// attempting to add mouse button callback code..
 	glfwSetMouseButtonCallback(window, mouseButtonCallback);
+
+	// Setting up keyboard callbacks here for poke swap
+	glfwSetKeyCallback(window, keyCallback);
 
 	while (!glfwWindowShouldClose(window)) {
 		elapsedSeconds = timer.GetElapsedTimeInSeconds();

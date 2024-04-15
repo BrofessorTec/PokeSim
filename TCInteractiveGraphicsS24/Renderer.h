@@ -72,6 +72,7 @@ public:
             shader->SendVec3Uniform("localLightPosition", scene->GetLocalLight().position);
 
             // Render the objects in the scene
+            // might need to change this so the current user poke is rendered and not the rest of the inventory
             for (auto& object : scene->GetObjects()) {
                 RenderObject(*object);
             }
