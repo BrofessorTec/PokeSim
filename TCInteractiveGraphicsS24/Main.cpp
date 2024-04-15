@@ -124,7 +124,8 @@ static void SetUpPokeBattler(std::shared_ptr<Shader>& shader3d,
 
 	poke1->SetVertexBuffer(bufferPoke1);
 
-	poke1->CreateBoundingBox(poke1Width, poke1Height, 0.5f);
+	//poke1->CreateBoundingBox(poke1Width, poke1Height, 0.5f);
+	// this probably doesnt need a bounding box
 
 
 	//poke 2 here
@@ -156,6 +157,7 @@ static void SetUpPokeBattler(std::shared_ptr<Shader>& shader3d,
 	poke2->SetVertexBuffer(bufferPoke2);
 
 	poke2->CreateBoundingBox(poke2Width, poke2Height, 0.5f);
+	// this should probably be a sphere bounding box for detection of overlap with the ball
 
 
 	//attack button here
