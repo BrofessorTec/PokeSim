@@ -31,12 +31,54 @@ void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
 // poke swap code here
 void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
 	// for 1
+	std::shared_ptr<ObjectManager> objManager = GraphicsEnvironment::self->GetObjManager();
+	std::string currSel = objManager->GetCurrPokeSel();
+	std::string sel1 = objManager->GetPoke1Sel();
+	std::string sel2 = objManager->GetPoke2Sel();;
+
+
+
 	if (key == GLFW_KEY_1 && action == GLFW_PRESS) {
-		glm::vec3 placeholderPos = static_cast<glm::vec3>(GraphicsEnvironment::self->GetObjManager()->GetObject("poke1")->GetReferenceFrame()[3]);
-		GraphicsEnvironment::self->GetObjManager()->GetObject("poke1")->SetPosition(GraphicsEnvironment::self->GetObjManager()->GetObject("poke1Side")->GetReferenceFrame()[3]);
-		GraphicsEnvironment::self->GetObjManager()->GetObject("poke1Side")->SetPosition(placeholderPos);
+		std::string placeholderSelName = currSel;
+		glm::vec3 placeholderPos = static_cast<glm::vec3>(objManager->GetObject(currSel)->GetReferenceFrame()[3]);
+		objManager->GetObject(currSel)->SetPosition(objManager->GetObject(sel1)->GetReferenceFrame()[3]);
+		objManager->GetObject(sel1)->SetPosition(placeholderPos);
+		objManager->SetCurrPokeSel(sel1);
+		objManager->SetPoke1Sel(placeholderSelName);
+		return;
+		
+
+		/*
+		// this should actually change out the object to work correctly and not just change the position..?
+		std::shared_ptr<GraphicsObject> placeholderObj = GraphicsEnvironment::self->GetObjManager()->GetObject("poke1");
+		std::shared_ptr<GraphicsObject> newObj = GraphicsEnvironment::self->GetObjManager()->GetObject("poke1Side");
+
+		GraphicsEnvironment::self->GetObjManager()->SetObject("poke1", newObj);
+		GraphicsEnvironment::self->GetObjManager()->SetObject("poke1Side", placeholderObj);
+		return;
+		*/
+
+	}
+	// for 2
+	if (key == GLFW_KEY_2 && action == GLFW_PRESS) {
+		std::string placeholderSelName = currSel;
+		glm::vec3 placeholderPos = static_cast<glm::vec3>(objManager->GetObject(currSel)->GetReferenceFrame()[3]);
+		objManager->GetObject(currSel)->SetPosition(objManager->GetObject(sel2)->GetReferenceFrame()[3]);
+		objManager->GetObject(sel2)->SetPosition(placeholderPos);
+		objManager->SetCurrPokeSel(sel2);
+		objManager->SetPoke2Sel(placeholderSelName);
+		return;
+
+		/*
+		// this should actually change out the object to work correctly and not just change the position..?
+		std::shared_ptr<GraphicsObject> placeholderObj = GraphicsEnvironment::self->GetObjManager()->GetObject("poke1");
+		std::shared_ptr<GraphicsObject> newObj = GraphicsEnvironment::self->GetObjManager()->GetObject("poke2Side");
+
+		GraphicsEnvironment::self->GetObjManager()->SetObject("poke1", newObj);
+		GraphicsEnvironment::self->GetObjManager()->SetObject("poke2Side", placeholderObj);
 
 		return;
+		*/
 	}
 	// can do this for 1-6 for the player's inventory, or less if desired
 }
@@ -209,7 +251,6 @@ void GraphicsEnvironment::ProcessInput(GLFWwindow* window, double elapsedSeconds
 
 		return;
 	}
-	*/
 
 	if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS) {
 		glm::mat4 look(1.0f);
@@ -237,6 +278,7 @@ void GraphicsEnvironment::ProcessInput(GLFWwindow* window, double elapsedSeconds
 		lookWithMouse = false;
 		return;
 	}
+	*/
 
 	// shifts to the side scene for testing
 	if (glfwGetKey(window, GLFW_KEY_0) == GLFW_PRESS) {

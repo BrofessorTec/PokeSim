@@ -394,7 +394,7 @@ static void SetUpSideScene(std::shared_ptr<Shader>& shader3d,
 	std::shared_ptr<Texture> poke1Tex = std::make_shared<Texture>();
 	// texture sprites from https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/6.png
 	// wiki files also look nice if they can work, https://pokemongo.fandom.com/wiki/Venusaur?file=Venusaur_female.png
-	std::string poke1Dex = "2";
+	std::string poke1Dex = "149";
 	std::string url1 = "..\\3rdparty\\Poke\\" + poke1Dex;
 	url1 += ".png";
 	poke1Tex->LoadTextureDataFromFile(url1);
@@ -425,7 +425,7 @@ static void SetUpSideScene(std::shared_ptr<Shader>& shader3d,
 
 	//poke 2 here
 	std::shared_ptr<Texture> poke2Tex = std::make_shared<Texture>();
-	std::string poke2Dex = "5";
+	std::string poke2Dex = "150";
 	std::string url2 = "..\\3rdparty\\Poke\\" + poke2Dex;
 	url2 += ".png";
 	poke2Tex->LoadTextureDataFromFile(url2);
@@ -434,7 +434,7 @@ static void SetUpSideScene(std::shared_ptr<Shader>& shader3d,
 	float poke2Height = 10.0f;
 
 	std::shared_ptr<GraphicsObject> poke2 = std::make_shared<GraphicsObject>();
-	std::shared_ptr<VertexBuffer> bufferPoke2 = Generate::XYPlaneNorm(poke2Width, poke2Height);
+	std::shared_ptr<VertexBuffer> bufferPoke2 = Generate::XYPlaneNormReverse(poke2Width, poke2Height);
 
 	bufferPoke2->AddVertexAttribute("position", 0, 3, 0);
 	bufferPoke2->AddVertexAttribute("vertexColor", 1, 4, 3);

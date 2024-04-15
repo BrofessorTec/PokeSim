@@ -38,3 +38,33 @@ void ObjectManager::SetBehaviorDefaults()
 		object->SetBehaviorDefaults();
 	}
 }
+
+std::string ObjectManager::GetCurrPokeSel()
+{
+	return currPokeSel;
+}
+
+void ObjectManager::SetCurrPokeSel(std::string newSel)
+{
+	currPokeSel = newSel;
+}
+
+std::string ObjectManager::GetPoke1Sel()
+{
+	return sel1;
+}
+
+void ObjectManager::SetPoke1Sel(std::string newSel)
+{
+	sel1 = newSel;
+}
+
+std::string ObjectManager::GetPoke2Sel()
+{
+	return sel2;
+}
+
+void ObjectManager::SetPoke2Sel(std::string newSel)
+{
+	sel2 = newSel;
+}
