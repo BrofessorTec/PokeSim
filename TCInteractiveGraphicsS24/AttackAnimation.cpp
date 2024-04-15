@@ -20,9 +20,7 @@ void AttackAnimation::Update(double elapsedSeconds)
 	// need to change this from rotation to moving in the direction
 	//referenceFrame = glm::rotate(referenceFrame, glm::radians(deltaSpeed),
 	//	direction);
-	bool firstPassCompleted = false;
-	bool secondPassCompleted = false;
-	bool completed = false;
+
 	while (!completed && isMoving)
 	{
 		if (isMoving && distanceMoved < distanceToMove)
@@ -51,6 +49,9 @@ void AttackAnimation::Update(double elapsedSeconds)
 		//firstPassCompleted = true;
 	}
 	isMoving = false;
+	firstPassCompleted = false;
+	secondPassCompleted = false;
+	completed = false;
 }
 
 void AttackAnimation::SetSpeed(float newSpeed)

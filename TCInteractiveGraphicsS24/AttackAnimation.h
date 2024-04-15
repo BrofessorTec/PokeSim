@@ -10,6 +10,9 @@ private:
 	glm::vec3 direction;
 	float speed;
 	bool isMoving = false;
+	bool firstPassCompleted = false;
+	bool secondPassCompleted = false;
+	bool completed = false;
 public:
 	AttackAnimation(glm::vec3 direction = glm::vec3(0.0f, 0.0f, -1.0f), float speed
 		= 30.0f)
