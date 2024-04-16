@@ -245,6 +245,83 @@ static void SetUpPokeBattler(std::shared_ptr<Shader>& shader3d,
 	catchBtn->SetPosition(glm::vec3(4.0f, 1.0f, 10.0f));
 	scene3d->AddObject(catchBtn);
 
+	//testing to check lighting here
+	// new poke code here
+
+	std::shared_ptr<Texture> poke1SideTex = std::make_shared<Texture>();
+	// texture sprites from https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/6.png
+	// wiki files also look nice if they can work, https://pokemongo.fandom.com/wiki/Venusaur?file=Venusaur_female.png
+	std::string poke1SideDex = "149";
+	std::string url1Side = "..\\3rdparty\\Poke\\" + poke1SideDex;
+	url1Side += ".png";
+	poke1SideTex->LoadTextureDataFromFile(url1Side);
+
+	float poke1SideWidth = 10.0f;
+	float poke1SideHeight = 10.0f;
+
+	std::shared_ptr<GraphicsObject> poke1Side = std::make_shared<GraphicsObject>();
+	std::shared_ptr<VertexBuffer> bufferSidePoke1 = Generate::XYPlaneNormReverse(poke1SideWidth, poke1SideHeight);
+
+	bufferSidePoke1->AddVertexAttribute("position", 0, 3, 0);
+	bufferSidePoke1->AddVertexAttribute("vertexColor", 1, 4, 3);
+	bufferSidePoke1->AddVertexAttribute("normal", 2, 3, 7);
+	bufferSidePoke1->AddVertexAttribute("texCoord", 3, 2, 10);
+
+	// adjusting the texture settings here
+	//poke1Tex->SetWrapS(GL_REPEAT);
+	//poke1Tex->SetWrapT(GL_REPEAT);
+	poke1SideTex->SetMagFilter(GL_NEAREST);
+	poke1SideTex->SetMinFilter(GL_NEAREST);
+
+	bufferSidePoke1->SetTexture(poke1SideTex);
+
+	poke1Side->SetVertexBuffer(bufferSidePoke1);
+
+	//poke1Side->CreateBoundingBox(poke1SideWidth, poke1SideHeight, 0.5f);
+
+
+	//poke 2 here
+	std::shared_ptr<Texture> poke2SideTex = std::make_shared<Texture>();
+	std::string poke2SideDex = "150";
+	std::string url2Side = "..\\3rdparty\\Poke\\" + poke2SideDex;
+	url2Side += ".png";
+	poke2SideTex->LoadTextureDataFromFile(url2Side);
+
+	float poke2SideWidth = 10.0f;
+	float poke2SideHeight = 10.0f;
+
+	std::shared_ptr<GraphicsObject> poke2Side = std::make_shared<GraphicsObject>();
+	std::shared_ptr<VertexBuffer> bufferSidePoke2 = Generate::XYPlaneNormReverse(poke2SideWidth, poke2SideHeight);
+
+	bufferSidePoke2->AddVertexAttribute("position", 0, 3, 0);
+	bufferSidePoke2->AddVertexAttribute("vertexColor", 1, 4, 3);
+	bufferSidePoke2->AddVertexAttribute("normal", 2, 3, 7);
+	bufferSidePoke2->AddVertexAttribute("texCoord", 3, 2, 10);
+
+	// adjusting the texture settings here
+	poke2SideTex->SetWrapS(GL_REPEAT);
+	poke2SideTex->SetWrapT(GL_REPEAT);
+	poke2SideTex->SetMagFilter(GL_NEAREST);
+	poke2SideTex->SetMinFilter(GL_NEAREST);
+
+	bufferSidePoke2->SetTexture(poke2SideTex);
+
+	poke2Side->SetVertexBuffer(bufferSidePoke2);
+
+	//poke2Side->CreateBoundingBox(poke2SideWidth, poke2SideHeight, 0.5f);
+
+
+	poke1Side->SetPosition(glm::vec3(-7.5f + 60.0f, 4.0f, 0.0f));  //can adjust position if needed
+	scene3d->AddObject(poke1Side);
+
+	poke2Side->SetPosition(glm::vec3(7.5f + 60.0f, 4.0f, 0.0f));  //can adjust position if needed
+	scene3d->AddObject(poke2Side);
+
+	//graphicsEnviron->AddObject("background", background);
+	graphicsEnviron->AddObject("poke1Side", poke1Side);
+	graphicsEnviron->AddObject("poke2Side", poke2Side);
+	
+
 	graphicsEnviron->AddObject("floor", graphicsObject3dFloor);
 	//graphicsEnviron->AddObject("background", background);
 	graphicsEnviron->AddObject("poke1", poke1);
@@ -436,9 +513,9 @@ static void SetUpSideScene(std::shared_ptr<Shader>& shader3d,
 	// texture sprites from https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/6.png
 	// wiki files also look nice if they can work, https://pokemongo.fandom.com/wiki/Venusaur?file=Venusaur_female.png
 	std::string poke1SideDex = "149";
-	std::string url1 = "..\\3rdparty\\Poke\\" + poke1SideDex;
-	url1 += ".png";
-	poke1SideTex->LoadTextureDataFromFile(url1);
+	std::string url1Side = "..\\3rdparty\\Poke\\" + poke1SideDex;
+	url1Side += ".png";
+	poke1SideTex->LoadTextureDataFromFile(url1Side);
 
 	float poke1SideWidth = 10.0f;
 	float poke1SideHeight = 10.0f;
@@ -467,9 +544,9 @@ static void SetUpSideScene(std::shared_ptr<Shader>& shader3d,
 	//poke 2 here
 	std::shared_ptr<Texture> poke2SideTex = std::make_shared<Texture>();
 	std::string poke2SideDex = "150";
-	std::string url2 = "..\\3rdparty\\Poke\\" + poke2SideDex;
-	url2 += ".png";
-	poke2SideTex->LoadTextureDataFromFile(url2);
+	std::string url2Side = "..\\3rdparty\\Poke\\" + poke2SideDex;
+	url2Side += ".png";
+	poke2SideTex->LoadTextureDataFromFile(url2Side);
 
 	float poke2SideWidth = 10.0f;
 	float poke2SideHeight = 10.0f;
@@ -927,8 +1004,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	graphicsEnviron->CreateRenderer("renderer3d", shader3d);
 	graphicsEnviron->GetRenderer("renderer3d")->SetScene(scene3d);
 
-	graphicsEnviron->CreateRenderer("rendererSideScene", shaderSideScene);
-	graphicsEnviron->GetRenderer("rendererSideScene")->SetScene(sceneSideScene);
+	//graphicsEnviron->CreateRenderer("rendererSideScene", shaderSideScene);
+	//graphicsEnviron->GetRenderer("rendererSideScene")->SetScene(sceneSideScene);
 
 	graphicsEnviron->StaticAllocate();
 
