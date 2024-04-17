@@ -53,12 +53,13 @@ void AttackAnimation::Update(double elapsedSeconds)
 		}
 		//firstPassCompleted = true;
 	}
-	if (completed)
+	else if (completed)
 	{
 		isMoving = false;
 		firstPassCompleted = false;
 		secondPassCompleted = false;
 		completed = false;
+		// set other poke hp lower and trigger it's attack here? seems like that would work
 	}
 }
 
@@ -95,4 +96,9 @@ void AttackAnimation::SetMove(bool isMoving)
 bool AttackAnimation::GetMove()
 {
 	return isMoving;
+}
+
+bool AttackAnimation::GetCompleted()
+{
+	return completed;
 }

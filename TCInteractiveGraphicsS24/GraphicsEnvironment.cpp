@@ -444,8 +444,8 @@ void GraphicsEnvironment::Run3D()
 	attackAnimation1->SetObject(objManager->GetObject("poke1"));
 	objManager->GetObject("poke1")->SetAnimation(attackAnimation1);
 
-	//attackAnimation2->SetObject(objManager->GetObject("poke2"));
-	//objManager->GetObject("poke2")->SetAnimation(attackAnimation2);
+	attackAnimation2->SetObject(objManager->GetObject("poke2"));
+	objManager->GetObject("poke2")->SetAnimation(attackAnimation2);
 
 
 	// Set the behavior defaults for all objects
@@ -559,6 +559,19 @@ void GraphicsEnvironment::Run3D()
 		objManager->GetObject("catchBtn")->SetBehaviorParameters("highlight", hp);
 
 		
+
+		if (std::static_pointer_cast<AttackAnimation>(objManager->GetObject(objManager->GetCurrPokeSel())->GetAnimation())->GetCompleted())
+		{
+			// lower enemy hp, start animation for enemy
+			// lower enemy hp here
+			std::static_pointer_cast<AttackAnimation>(objManager->GetObject("poke2")->GetAnimation())->SetMove(true);
+		}
+		if (std::static_pointer_cast<AttackAnimation>(objManager->GetObject("poke2")->GetAnimation())->GetCompleted())
+		{
+			// lower currSel hp here
+		}
+
+
 		// could use dynamic buffers to shrink the size of the pokes when swapping and summoning
 
 

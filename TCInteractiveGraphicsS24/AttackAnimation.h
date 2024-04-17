@@ -25,4 +25,5 @@ public:
 	glm::vec3 GetDirection();
 	void SetMove(bool isMoving);
 	bool GetMove();
+	bool GetCompleted();
 };
