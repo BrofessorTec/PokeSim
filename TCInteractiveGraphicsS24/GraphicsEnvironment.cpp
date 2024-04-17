@@ -12,12 +12,17 @@
 
 void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
 	// making this right click for now so IMGui doesnt break
+	std::shared_ptr<ObjectManager> objManager = GraphicsEnvironment::self->GetObjManager();
+	std::string currSel = objManager->GetCurrPokeSel();
+
+	// set up check on who poke's need the animation set to them
+
 	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
 		// perform animation here
-		if (GraphicsEnvironment::self->GetObjManager()->GetObject("attackBtn")->IsIntersectingWithRay(GraphicsEnvironment::self->GetMouseRayVar())) {
+		if (objManager->GetObject("attackBtn")->IsIntersectingWithRay(GraphicsEnvironment::self->GetMouseRayVar())) {
 			// rotate left right left to simulate and attack rumble
 			//bool isMoving = std::static_pointer_cast<AttackAnimation>(objManager->GetObject("poke1")->GetAnimation())->GetMove();
-			std::static_pointer_cast<AttackAnimation>(GraphicsEnvironment::self->GetObjManager()->GetObject("poke1")->GetAnimation())->SetMove(true);
+			std::static_pointer_cast<AttackAnimation>(objManager->GetObject(currSel)->GetAnimation())->SetMove(true);
 		}
 
 		// if interseting with catch, spawn a ball
@@ -46,6 +51,14 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 		objManager->GetObject(sel1)->SetPosition(placeholderPos);
 		objManager->SetCurrPokeSel(sel1);
 		objManager->SetPoke1Sel(placeholderSelName);
+
+		currSel = objManager->GetCurrPokeSel();
+
+		std::shared_ptr<AttackAnimation> attackAnimation1 = std::make_shared<AttackAnimation>();
+
+		attackAnimation1->SetObject(objManager->GetObject(currSel));
+		objManager->GetObject(currSel)->SetAnimation(attackAnimation1);
+
 		return;
 		
 
@@ -68,6 +81,14 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 		objManager->GetObject(sel2)->SetPosition(placeholderPos);
 		objManager->SetCurrPokeSel(sel2);
 		objManager->SetPoke2Sel(placeholderSelName);
+
+		currSel = objManager->GetCurrPokeSel();
+
+		std::shared_ptr<AttackAnimation> attackAnimation1 = std::make_shared<AttackAnimation>();
+
+		attackAnimation1->SetObject(objManager->GetObject(currSel));
+		objManager->GetObject(currSel)->SetAnimation(attackAnimation1);
+
 		return;
 
 		/*
@@ -404,6 +425,8 @@ void GraphicsEnvironment::Run3D()
 
 	// add animation
 	std::shared_ptr<RotateAnimation> rotateAnimation = std::make_shared<RotateAnimation>();
+	// this could be repurposedfor the ball with a forward spin direction
+	
 	//rotateAnimation->SetObject(objManager->GetObject("Crate"));
 	//objManager->GetObject("Crate")->SetAnimation(rotateAnimation);
 
@@ -416,11 +439,13 @@ void GraphicsEnvironment::Run3D()
 	std::shared_ptr<AttackAnimation> attackAnimation1 = std::make_shared<AttackAnimation>();
 	std::shared_ptr<AttackAnimation> attackAnimation2 = std::make_shared<AttackAnimation>();
 
+	// this needs to be done for whatever the current selection is, or just all pokes not just poke1
+	std::string currSel = objManager->GetCurrPokeSel();
 	attackAnimation1->SetObject(objManager->GetObject("poke1"));
 	objManager->GetObject("poke1")->SetAnimation(attackAnimation1);
 
-	//attackAnimation2->SetObject(objManager->GetObject("poke2"));
-	//objManager->GetObject("poke2")->SetAnimation(attackAnimation2);
+	attackAnimation2->SetObject(objManager->GetObject("poke2"));
+	objManager->GetObject("poke2")->SetAnimation(attackAnimation2);
 
 
 	// Set the behavior defaults for all objects
@@ -532,7 +557,23 @@ void GraphicsEnvironment::Run3D()
 		//objManager->GetObject("globe")->SetBehaviorParameters("highlight", hp);
 		objManager->GetObject("attackBtn")->SetBehaviorParameters("highlight", hp);
 		objManager->GetObject("catchBtn")->SetBehaviorParameters("highlight", hp);
+
 		
+
+		if (std::static_pointer_cast<AttackAnimation>(objManager->GetObject(objManager->GetCurrPokeSel())->GetAnimation())->GetCompleted())
+		{
+			// lower enemy hp, start animation for enemy
+			// lower enemy hp here
+			std::static_pointer_cast<AttackAnimation>(objManager->GetObject("poke2")->GetAnimation())->SetMove(true);
+		}
+		if (std::static_pointer_cast<AttackAnimation>(objManager->GetObject("poke2")->GetAnimation())->GetCompleted())
+		{
+			// lower currSel hp here
+		}
+
+
+		// could use dynamic buffers to shrink the size of the pokes when swapping and summoning
+
 
 		// call update
 		objManager->Update(elapsedSeconds);
@@ -575,6 +616,7 @@ void GraphicsEnvironment::Run3D()
 		//ImGui::SliderFloat("Local Light Position X", &GetRenderer("renderer3d")->GetScene()->GetLocalLight().position.x, -40, 40); 
 		//ImGui::SliderFloat("Local Light Position Y", &GetRenderer("renderer3d")->GetScene()->GetLocalLight().position.y, -40, 40);
 		//ImGui::SliderFloat("Local Light Position Z", &GetRenderer("renderer3d")->GetScene()->GetLocalLight().position.z, -40, 40); 
+		ImGui::DragFloat3("Local light position", (float*)&GetRenderer("renderer3d")->GetScene()->GetLocalLight().position, 0.1f);
 		ImGui::Checkbox("Use mouse to look", &this->lookWithMouse);
 		ImGui::Checkbox("Reset camera position", &resetCameraPosition);
 		ImGui::End();

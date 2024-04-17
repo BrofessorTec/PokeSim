@@ -7,6 +7,7 @@ void AttackAnimation::Update(double elapsedSeconds)
 {
 	if (object == nullptr) return;
 	float deltaSpeed;
+	/*
 	if (direction == glm::vec3(0.0f, 0.0f, -1.0f))
 	{
 		deltaSpeed = -static_cast<float>(speed * elapsedSeconds);
@@ -15,27 +16,21 @@ void AttackAnimation::Update(double elapsedSeconds)
 	{
 		deltaSpeed = static_cast<float>(speed * elapsedSeconds);
 	}
+	*/
+	deltaSpeed = -static_cast<float>(speed * elapsedSeconds);
 
 	glm::mat4& referenceFrame = object->GetLocalReferenceFrame();
 	// need to change this from rotation to moving in the direction
 	//referenceFrame = glm::rotate(referenceFrame, glm::radians(deltaSpeed),
 	//	direction);
-	bool firstPassCompleted = false;
-	bool secondPassCompleted = false;
-	bool completed = false;
-	while (!completed && isMoving)
+
+	if(!completed && isMoving)
 	{
-		if (isMoving && distanceMoved < distanceToMove)
-		{
-			referenceFrame = glm::rotate(referenceFrame, glm::radians(deltaSpeed), direction);
-			distanceMoved = abs(deltaSpeed) + distanceMoved;
-		}
-		else if (!firstPassCompleted && isMoving && distanceMoved >= distanceToMove)
+		if (firstPassCompleted && secondPassCompleted && isMoving && distanceMoved >= distanceToMove)
 		{
 			distanceMoved = 0;
-			distanceToMove = distanceToMove * 2;
-			direction = -direction;
-			firstPassCompleted = true;
+			//direction = -direction;
+			completed = true;
 		}
 		else if (firstPassCompleted && !secondPassCompleted && isMoving && distanceMoved >= distanceToMove)
 		{
@@ -44,13 +39,28 @@ void AttackAnimation::Update(double elapsedSeconds)
 			direction = -direction;
 			secondPassCompleted = true;
 		}
-		else if (firstPassCompleted && secondPassCompleted && isMoving && distanceMoved >= distanceToMove)
+		else if (!firstPassCompleted && isMoving && distanceMoved >= distanceToMove)
 		{
-			completed = true;
+			distanceMoved = 0;
+			distanceToMove = distanceToMove * 2;
+			direction = -direction;
+			firstPassCompleted = true;
+		}
+		else if (isMoving && distanceMoved < distanceToMove)
+		{
+			referenceFrame = glm::rotate(referenceFrame, glm::radians(deltaSpeed), direction);
+			distanceMoved = abs(deltaSpeed) + distanceMoved;
 		}
 		//firstPassCompleted = true;
 	}
-	isMoving = false;
+	else if (completed)
+	{
+		isMoving = false;
+		firstPassCompleted = false;
+		secondPassCompleted = false;
+		completed = false;
+		// set other poke hp lower and trigger it's attack here? seems like that would work
+	}
 }
 
 void AttackAnimation::SetSpeed(float newSpeed)
@@ -86,4 +96,9 @@ void AttackAnimation::SetMove(bool isMoving)
 bool AttackAnimation::GetMove()
 {
 	return isMoving;
+}
+
+bool AttackAnimation::GetCompleted()
+{
+	return completed;
 }
