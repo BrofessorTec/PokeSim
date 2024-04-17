@@ -15,11 +15,9 @@ class Pokemon(Base):
     maxHp = Column(Integer)
     currHp = Column(Integer)
 
-    # This is the same as overriding ToString() in C#
     def __repr__(self):
         return f"<Pokemon(pokedex_number={self.id}, name='{self.name}', imageurl='{self.imageurl}', maxHp='{self.maxHp}', currHp='{self.currHp}')>"
 
-# This is similar to Microsoft.Data.Sqlite - we need an object to represent the database record
 class PokemonCreate(BaseModel):
     id: int
     name: str
@@ -27,7 +25,6 @@ class PokemonCreate(BaseModel):
     maxHp: int
     currHp: int
 
-# Here, we set the orm flag so that a database record can be converted to a Pydantic model on a read
 class PokemonRead(PokemonCreate):
     class Config:
         orm_mode = True
