@@ -7,6 +7,7 @@
 #include "BoundingBox.h"
 #include "IBehavior.h"
 #include "IAnimation.h"
+#include "Poke.h"
 
 class IAnimation; // Forward declaration
 
@@ -22,6 +23,7 @@ protected:
 	GraphicStructures::Material material{};
 	std::shared_ptr<BoundingBox> boundingBox = nullptr;
 	std::unordered_map<std::string, std::shared_ptr<IBehavior>> behaviorMap;
+	std::shared_ptr<Poke> poke = nullptr;
 
 
 public:
@@ -63,5 +65,7 @@ public:
 	void AddBehavior(std::string name, std::shared_ptr<IBehavior> behavior);
 	void SetBehaviorDefaults();
 	void SetBehaviorParameters(std::string name, GraphicStructures::IParams& params);
+	std::shared_ptr<Poke> GetPoke();
+	void SetPoke(std::shared_ptr<Poke> newPoke);
 };
 

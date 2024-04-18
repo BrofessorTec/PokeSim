@@ -447,6 +447,10 @@ void GraphicsEnvironment::Run3D()
 	attackAnimation2->SetObject(objManager->GetObject("poke2"));
 	objManager->GetObject("poke2")->SetAnimation(attackAnimation2);
 
+	int prevCurrSelHp = objManager->GetObject(objManager->GetCurrPokeSel())->GetPoke()->GetCurrHp();
+	int prevEnemySelHp = objManager->GetObject(objManager->GetCurrEnemy())->GetPoke()->GetCurrHp();
+
+
 
 	// Set the behavior defaults for all objects
 	for (auto& [name, object] : objManager->GetObjectMap()) {
@@ -564,11 +568,13 @@ void GraphicsEnvironment::Run3D()
 		{
 			// lower enemy hp, start animation for enemy
 			// lower enemy hp here
-			std::static_pointer_cast<AttackAnimation>(objManager->GetObject("poke2")->GetAnimation())->SetMove(true);
+			objManager->GetObject(objManager->GetCurrEnemy())->GetPoke()->SetCurrHp(1);
+			std::static_pointer_cast<AttackAnimation>(objManager->GetObject(objManager->GetCurrEnemy())->GetAnimation())->SetMove(true);
 		}
-		if (std::static_pointer_cast<AttackAnimation>(objManager->GetObject("poke2")->GetAnimation())->GetCompleted())
+		if (std::static_pointer_cast<AttackAnimation>(objManager->GetObject(objManager->GetCurrEnemy())->GetAnimation())->GetCompleted())
 		{
 			// lower currSel hp here
+			objManager->GetObject(objManager->GetCurrPokeSel())->GetPoke()->SetCurrHp(1);
 		}
 
 
@@ -577,6 +583,42 @@ void GraphicsEnvironment::Run3D()
 
 		// call update
 		objManager->Update(elapsedSeconds);
+
+		//
+		if (objManager->GetObject(objManager->GetCurrPokeSel())->GetPoke()->GetCurrHp() != prevCurrSelHp)
+		{
+			int currHp = objManager->GetObject(objManager->GetCurrPokeSel())->GetPoke()->GetCurrHp();
+			std::string currHpObject = "currSelHp" + std::to_string(currHp);
+			glm::vec3 currHpPos = objManager->GetObject(currHpObject)->GetReferenceFrame()[3];
+
+
+			//need to swap out prev with the Curr
+			std::string prevHpObject = "currSelHp" + std::to_string(prevCurrSelHp);
+			glm::vec3 prevHpPos = objManager->GetObject(prevHpObject)->GetReferenceFrame()[3];
+
+			objManager->GetObject(prevHpObject)->SetPosition(currHpPos);
+			objManager->GetObject(currHpObject)->SetPosition(prevHpPos);
+
+			// update prev
+			prevCurrSelHp = objManager->GetObject(objManager->GetCurrPokeSel())->GetPoke()->GetCurrHp();
+		}
+		if (objManager->GetObject(objManager->GetCurrEnemy())->GetPoke()->GetCurrHp() != prevEnemySelHp)
+		{
+			int currEnemyHp = objManager->GetObject(objManager->GetCurrEnemy())->GetPoke()->GetCurrHp();
+			std::string currEnemyHpObject = "currEnemyHp" + std::to_string(currEnemyHp);
+			glm::vec3 currEnemyHpPos = objManager->GetObject(currEnemyHpObject)->GetReferenceFrame()[3];
+
+
+			//need to swap out prev with the Curr
+			std::string prevEnemyHpObject = "currEnemyHp" + std::to_string(prevEnemySelHp);
+			glm::vec3 prevEnemyHpPos = objManager->GetObject(prevEnemyHpObject)->GetReferenceFrame()[3];
+
+			objManager->GetObject(prevEnemyHpObject)->SetPosition(currEnemyHpPos);
+			objManager->GetObject(currEnemyHpObject)->SetPosition(prevEnemyHpPos);
+
+			// update prev
+			prevEnemySelHp = objManager->GetObject(objManager->GetCurrEnemy())->GetPoke()->GetCurrHp();
+		}
 
 		Render();
 

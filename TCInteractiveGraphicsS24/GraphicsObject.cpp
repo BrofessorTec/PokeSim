@@ -203,6 +203,16 @@ void GraphicsObject::SetBehaviorParameters(std::string name, GraphicStructures::
 	behaviorMap[name]->SetParameter(params);
 }
 
+std::shared_ptr<Poke> GraphicsObject::GetPoke()
+{
+	return poke;
+}
+
+void GraphicsObject::SetPoke(std::shared_ptr<Poke> newPoke)
+{
+	poke = newPoke;
+}
+
 GraphicStructures::Material& GraphicsObject::GetMaterial()
 {
 	return material;

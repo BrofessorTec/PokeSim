@@ -68,3 +68,13 @@ void ObjectManager::SetPoke2Sel(std::string newSel)
 {
 	sel2 = newSel;
 }
+
+std::string ObjectManager::GetCurrEnemy()
+{
+	return currEnemy;
+}
+
+void ObjectManager::SetCurrEnemy(std::string newSel)
+{
+	currEnemy = newSel;
+}
