@@ -45,7 +45,7 @@ async def get_count(db: Session = Depends(get_db)):
 async def get_pokemon(db: Session = Depends(get_db)):
     pokemon_list = db.query(Pokemon).all()
 
-    return [{"id": pokemon.id, "name": pokemon.name, "imageurl": pokemon.imageurl, "maxHp": pokemon.maxHp, "currHp": pokemon.currHp} for pokemon in pokemon_list]
+    return [{"id": pokemon.id, "dex": pokemon.dex, "name": pokemon.name, "imageurl": pokemon.imageurl, "maxHp": pokemon.maxHp, "currHp": pokemon.currHp} for pokemon in pokemon_list]
 
 @app.get("/pokemon/{id}")
 async def get_pokemon_by_id(id: int, db: Session = Depends(get_db)):
@@ -64,7 +64,7 @@ async def add_pokemon(pokemon: PokemonCreate, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="Pokemon already exists")
 
     # Create a new Pokemon object using the PokemonCreate model
-    new_pokemon = Pokemon(id=pokemon.id, name=pokemon.name, imageurl=pokemon.imageurl, maxHp=pokemon.maxHp, currHp=pokemon.currHp)
+    new_pokemon = Pokemon(id=pokemon.id, dex=pokemon.dex, name=pokemon.name, imageurl=pokemon.imageurl, maxHp=pokemon.maxHp, currHp=pokemon.currHp)
 
     # Add the new Pokemon object to the database
     db.add(new_pokemon)
@@ -82,13 +82,26 @@ async def update_pokemon(id: int, pokemon: PokemonCreate, db: Session = Depends(
         raise HTTPException(status_code=404, detail="Pokemon not found")
 
     # Update the Pokemon object in the database
-    db.query(Pokemon).filter(Pokemon.id == id).update({Pokemon.name: pokemon.name, Pokemon.imageurl: pokemon.imageurl, Pokemon.maxHp: pokemon.maxHp, Pokemon.currHp: pokemon.currHp})
+    db.query(Pokemon).filter(Pokemon.id == id).update({Pokemon.dex: pokemon.dex, Pokemon.name: pokemon.name, Pokemon.imageurl: pokemon.imageurl, Pokemon.maxHp: pokemon.maxHp, Pokemon.currHp: pokemon.currHp})
     db.commit()
 
     # Return the updated Pokemon object using the PokemonRead model
     return db.query(Pokemon).filter(Pokemon.id == id).first()
 
 # PATCH requests
+@app.patch("/pokemon/{id}/dex")
+async def update_pokemon_name(id: int, dex: int, db: Session = Depends(get_db)):
+    # Check if the pokemon already exists in the database
+    if db.query(Pokemon).filter(Pokemon.id == id).first() is None:
+        raise HTTPException(status_code=404, detail="Pokemon not found")
+
+    # Update the Pokemon object in the database
+    db.query(Pokemon).filter(Pokemon.id == id).update({Pokemon.dex: dex})
+    db.commit()
+
+    # Return the updated Pokemon object using the PokemonRead model
+    return db.query(Pokemon).filter(Pokemon.id == id).first()
+
 @app.patch("/pokemon/{id}/name")
 async def update_pokemon_name(id: int, name: str, db: Session = Depends(get_db)):
     # Check if the pokemon already exists in the database
