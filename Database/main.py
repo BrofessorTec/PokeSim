@@ -4,33 +4,31 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
 from pydantic import BaseModel
 
-# Imports from our dbmodel.py file
+# Imports from dbmodel.py file
 from dbmodel import Base, Pokemon, PokemonCreate, PokemonRead
 
 app = FastAPI()
 
-# because we are hosting both Blazor and FastAPI on the same server (localhost), we need to enable CORS 
-# to allow the Blazor client to make requests to the FastAPI server
+# enable CORS to make requests to the FastAPI server
 app.add_middleware(
 	CORSMiddleware,
-	allow_origins=["*"], # set to * here to allow all origins because Blazor does not have a set origin port for all users. 
-						 # Ideally, you would set this to the port that Blazor is running on (e.g. http://localhost:7134 for me)
+	allow_origins=["*"], 
 	allow_credentials=True,
 	allow_methods=["*"],
 	allow_headers=["*"],
 )
 
-# Set up our local database session
-SQLALCHEMY_DATABASE_URL = "sqlite:///./pokemon.db"
+# Set up the local database session
+# using the inventory as the main db for now.. might hard code the possible poke's rather than 2 db at once
+SQLALCHEMY_DATABASE_URL = "sqlite:///./inventory.db"
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-# This binds our ORM class models
+# This binds the ORM class models
 Base.metadata.create_all(bind=engine)
 
 # This function will serve as a Dependency Inversion for our db connection at our FastAPI endpoints.
 # Each endpoint function will have this connection passed in as a parameter using the Depends() function.
-# This is similar to Blazor's @inject directive for components.
 def get_db():
     db = SessionLocal()
     try:
@@ -46,9 +44,7 @@ async def get_count(db: Session = Depends(get_db)):
 @app.get("/pokemon")
 async def get_pokemon(db: Session = Depends(get_db)):
     pokemon_list = db.query(Pokemon).all()
-    
-    # Here, I'm using a simple list comprehension to create the JSON response. There's a bit more overhead if we 
-    # want to use a Pydantic model for the list in conjunction with the PokemonRead model.
+
     return [{"id": pokemon.id, "name": pokemon.name, "imageurl": pokemon.imageurl, "maxHp": pokemon.maxHp, "currHp": pokemon.currHp} for pokemon in pokemon_list]
 
 @app.get("/pokemon/{id}")

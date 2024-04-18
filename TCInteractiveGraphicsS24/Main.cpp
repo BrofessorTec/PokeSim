@@ -22,6 +22,7 @@
 #include "GraphicsEnvironment.h"
 #include "Generate.h"
 #include "HighlightBehavior.h"
+#include "Poke.h"
 
 
 // inserting poke scene here
@@ -249,7 +250,7 @@ static void SetUpPokeBattler(std::shared_ptr<Shader>& shader3d,
 	// new poke code here
 
 	std::shared_ptr<Texture> poke1SideTex = std::make_shared<Texture>();
-	// texture sprites from https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/6.png
+	// texture sprites from https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/3.png
 	// wiki files also look nice if they can work, https://pokemongo.fandom.com/wiki/Venusaur?file=Venusaur_female.png
 	std::string poke1SideDex = "149";
 	std::string url1Side = "..\\3rdparty\\Poke\\" + poke1SideDex;
@@ -963,6 +964,28 @@ static void SetUpArrowScene(std::shared_ptr<Shader>&
 
 }
 
+std::unordered_map<std::string, std::shared_ptr<Poke>> pokeMap;
+std::string pokeUrl = "";
+// cannot get this string to work right for the life of me. having a string read error which keeps losing characters
+
+static void SetUpDex()
+{
+	std::vector<std::string> pokeNames = {"Bulbasaur", "Ivysaur", "Venusaur", "Charmander", "Charmeleon", "Charizard", "Blastoise", "Pikachu", "Alakazam", "Machamp", "Dragonite", "Mewtwo", "Mew"};
+	std::vector<int> pokeNums = {1, 2, 3, 4, 5, 6, 9, 25, 65, 68, 149, 150, 151 };
+	//std::string url;
+
+	for (int i = 0; i < pokeNames.size(); i++)
+	{
+		pokeUrl = "";
+		pokeUrl += "..\\3rdparty\\Poke\\";
+		pokeUrl += (pokeNums.at(i));
+		pokeUrl += ".png";
+		std::shared_ptr<Poke> poke = std::make_shared<Poke>(pokeNums[i], pokeNames[i], pokeUrl, 10, 10);
+		pokeMap.emplace(pokeNames[i], poke);
+	}		
+}
+
+
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	_In_opt_ HINSTANCE hPrevInstance,
@@ -993,6 +1016,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	// set up the poke scenes here
 	std::shared_ptr<Shader> shaderSideScene;
 	std::shared_ptr<Scene> sceneSideScene;
+
+	SetUpDex();
 
 	SetUpBackgroundScene(shaderBackground, sceneBackground, graphicsEnviron);
 	SetUpPokeBattler(shader3d, scene3d, graphicsEnviron);
