@@ -6,6 +6,7 @@ class ObjectManager
 private:
 	std::unordered_map<std::string, std::shared_ptr<GraphicsObject>> objectsMap;
 	std::string currPokeSel = "poke1";
+	std::string currEnemy = "poke2";
 	std::string sel1 = "poke1Side";
 	std::string sel2 = "poke2Side";
 
@@ -22,5 +23,7 @@ public:
 	void SetPoke1Sel(std::string newSel);
 	std::string GetPoke2Sel();
 	void SetPoke2Sel(std::string newSel);
+	std::string GetCurrEnemy();
+	void SetCurrEnemy(std::string newSel);
 };
 
