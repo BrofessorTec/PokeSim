@@ -41,4 +41,8 @@ void Poke::SetCurrHp(int damage)
 	{
 		currHp = 0;
 	}
+	else if (currHp > maxHp)
+	{
+		currHp = maxHp;
+	}
 }

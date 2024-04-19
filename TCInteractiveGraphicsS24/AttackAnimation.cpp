@@ -20,6 +20,15 @@ void AttackAnimation::Update(double elapsedSeconds)
 	deltaSpeed = -static_cast<float>(speed * elapsedSeconds);
 
 	glm::mat4& referenceFrame = object->GetLocalReferenceFrame();
+
+	if (!isMoving)
+	{
+		startingFrame = object->GetLocalReferenceFrame();
+		startingFrame[0] = { 1, 0, 0, 0 };
+		startingFrame[1] = { 0, 1, 0, 0 };
+		startingFrame[2] = { 0, 0, 1, 0 };
+	}
+
 	// need to change this from rotation to moving in the direction
 	//referenceFrame = glm::rotate(referenceFrame, glm::radians(deltaSpeed),
 	//	direction);
@@ -59,7 +68,7 @@ void AttackAnimation::Update(double elapsedSeconds)
 		firstPassCompleted = false;
 		secondPassCompleted = false;
 		completed = false;
-		// set other poke hp lower and trigger it's attack here? seems like that would work
+		object->SetReferenceFrame(startingFrame);  // catch all to make sure animation fixes itself at end
 	}
 }
 
