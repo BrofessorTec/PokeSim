@@ -28,7 +28,9 @@
 
 // inserting poke scene here
 static void SetUpPokeBattler(std::shared_ptr<Shader>& shader3d,
-	std::shared_ptr<Scene>& scene3d, std::shared_ptr<GraphicsEnvironment>& graphicsEnviron, std::unordered_map<int, std::shared_ptr<Poke>>& pokeMap)
+	std::shared_ptr<Scene>& scene3d, std::shared_ptr<GraphicsEnvironment>& graphicsEnviron, 
+	std::unordered_map<int, std::shared_ptr<Poke>>& pokeMap, 
+	std::unordered_map<int, std::shared_ptr<Poke>> invMap)
 {
 
 	std::shared_ptr<TextFile> vertFile = std::make_shared<TextFile>();
@@ -95,8 +97,8 @@ static void SetUpPokeBattler(std::shared_ptr<Shader>& shader3d,
 	graphicsObject3dFloor->RotateLocalY(90.0f);
 	scene3d->AddObject(graphicsObject3dFloor);
 
-	// new poke code here
-
+	// poke code here, being moved into a factory
+	/*
 	std::shared_ptr<Texture> poke1Tex = std::make_shared<Texture>();
 	// texture sprites from https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/6.png
 	// wiki files also look nice if they can work, https://pokemongo.fandom.com/wiki/Venusaur?file=Venusaur_female.png
@@ -124,6 +126,10 @@ static void SetUpPokeBattler(std::shared_ptr<Shader>& shader3d,
 	bufferPoke1->SetTexture(poke1Tex);
 
 	poke1->SetVertexBuffer(bufferPoke1);
+	*/
+	// end commenting of poke 1 generation
+
+
 
 	//poke1->CreateBoundingBox(poke1Width, poke1Height, 0.5f);
 	// this probably doesnt need a bounding box
@@ -237,8 +243,8 @@ static void SetUpPokeBattler(std::shared_ptr<Shader>& shader3d,
 	catchBtn->AddBehavior("highlight", catchBtnHighlight);
 
 
-	poke1->SetPosition(glm::vec3(-7.5f, 4.0f, 3.0f));  //can adjust position if needed
-	scene3d->AddObject(poke1);
+	//poke1->SetPosition(glm::vec3(-7.5f, 4.0f, 3.0f));  //can adjust position if needed
+	//scene3d->AddObject(poke1);
 
 	//poke2->SetPosition(glm::vec3(7.5f, 4.0f, 0.0f));  //can adjust position if needed
 	//scene3d->AddObject(poke2);
@@ -250,6 +256,7 @@ static void SetUpPokeBattler(std::shared_ptr<Shader>& shader3d,
 
 	// new code
 	std::vector<int> dexNums = { 1, 2, 3, 4, 5, 6, 9, 25, 65, 68, 149, 150, 151 };
+	std::vector<int> dexPlayerNums = { 3, 149, 150 };
 	std::random_device rand;
 	std::mt19937 gen(rand());
 	int min = 1;
@@ -259,6 +266,52 @@ static void SetUpPokeBattler(std::shared_ptr<Shader>& shader3d,
 	int dexSel = dexNums[randomInt - 1];
 	//std::shared_ptr<GraphicsObject> startingEnemy = std::make_shared<GraphicsObject>();
 	std::string currEnemy;
+
+	// testing new playerinv generation code here
+	// testing new poke generation code here
+	for (int i = 0; i < invMap.size(); i++)
+	{
+		std::shared_ptr<Texture> pokeFactoryTex = std::make_shared<Texture>();
+		std::string pokeFactoryDex = std::to_string(dexPlayerNums[i]);;
+
+		float pokeFactoryWidth = 10.0f;
+		float pokeFactoryHeight = 10.0f;
+
+		std::shared_ptr<GraphicsObject> pokeFactory = std::make_shared<GraphicsObject>();
+		std::shared_ptr<VertexBuffer> bufferpokeFactory = Generate::XYPlaneNormReverse(pokeFactoryWidth, pokeFactoryHeight);
+		std::shared_ptr<Poke> pokeFactoryObject = invMap[dexPlayerNums[i]];
+		pokeFactoryTex->LoadTextureDataFromFile(pokeFactoryObject->GetUrl());
+		pokeFactory->SetPoke(pokeFactoryObject);
+
+		bufferpokeFactory->AddVertexAttribute("position", 0, 3, 0);
+		bufferpokeFactory->AddVertexAttribute("vertexColor", 1, 4, 3);
+		bufferpokeFactory->AddVertexAttribute("normal", 2, 3, 7);
+		bufferpokeFactory->AddVertexAttribute("texCoord", 3, 2, 10);
+
+		// adjusting the texture settings here
+		pokeFactoryTex->SetWrapS(GL_REPEAT);
+		pokeFactoryTex->SetWrapT(GL_REPEAT);
+		pokeFactoryTex->SetMagFilter(GL_NEAREST);
+		pokeFactoryTex->SetMinFilter(GL_NEAREST);
+
+		bufferpokeFactory->SetTexture(pokeFactoryTex);
+
+		pokeFactory->SetVertexBuffer(bufferpokeFactory);
+
+		//pokeFactory->CreateBoundingBox(pokeFactoryWidth, pokeFactoryHeight, 0.5f);
+		// this should probably be a sphere bounding box for detection of overlap with the ball
+
+		pokeFactory->SetPosition(glm::vec3(60.5f, 4.0f, 0.0f));  //can adjust position if needed
+		scene3d->AddObject(pokeFactory);
+		graphicsEnviron->AddObject(pokeFactoryObject->GetName() + "player", pokeFactory);
+
+		if (pokeFactoryDex == "3")  // starting with venusaur still.. need to change this to be based off whatever starter is chosen
+		{
+			pokeFactory->SetPosition(glm::vec3(-7.5f, 4.0f, 3.0f));
+			graphicsEnviron->GetObjManager()->SetCurrPokeSel(pokeFactoryObject->GetName() + "player");
+		}
+	}
+
 
 	// testing new poke generation code here
 	for (int i = 0; i < pokeMap.size(); i++)
@@ -310,7 +363,8 @@ static void SetUpPokeBattler(std::shared_ptr<Shader>& shader3d,
 	//startingEnemy->SetPosition(glm::vec3(7.5f, 4.0f, 0.0f));
 
 	//testing to check lighting here
-	// new poke code here
+	/*
+	// poke code here, being moved into a factory
 
 	std::shared_ptr<Texture> poke1SideTex = std::make_shared<Texture>();
 	// texture sprites from https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/3.png
@@ -380,15 +434,17 @@ static void SetUpPokeBattler(std::shared_ptr<Shader>& shader3d,
 
 	poke2Side->SetPosition(glm::vec3(7.5f + 60.0f, 4.0f, 0.0f));  //can adjust position if needed
 	scene3d->AddObject(poke2Side);
+	
 
 	//graphicsEnviron->AddObject("background", background);
 	graphicsEnviron->AddObject(poke1SideObject->GetName() + "player", poke1Side);
 	graphicsEnviron->AddObject(poke2SideObject->GetName() + "player", poke2Side);
+	*/
 	
 
 	graphicsEnviron->AddObject("floor", graphicsObject3dFloor);
 	//graphicsEnviron->AddObject("background", background);
-	graphicsEnviron->AddObject(poke1Object->GetName() + "player", poke1);
+	//graphicsEnviron->AddObject(poke1Object->GetName() + "player", poke1);
 	//graphicsEnviron->AddObject("poke2", poke2);
 	graphicsEnviron->AddObject("attackBtn", attackBtn);
 	graphicsEnviron->AddObject("catchBtn", catchBtn);
@@ -1678,6 +1734,25 @@ static void SetUpDex(std::unordered_map<int, std::shared_ptr<Poke>>& pokeMap)
 	}		
 }
 
+static void SetUpPlayerInv(std::unordered_map<int, std::shared_ptr<Poke>>& pokeMap, std::unordered_map<int, std::shared_ptr<Poke>>& invMap)
+{
+	std::vector<std::string> pokeNames = { "Bulbasaur", "Ivysaur", "Venusaur", "Charmander", "Charmeleon", "Charizard", "Blastoise", "Pikachu", "Alakazam", "Machamp", "Dragonite", "Mewtwo", "Mew" };
+	std::vector<int> pokeNums = { 1, 2, 3, 4, 5, 6, 9, 25, 65, 68, 149, 150, 151 };
+	std::string pokeUrl = "";
+	std::vector<int> playerInv = { 2, 10, 11 };  // using index placeholders here. this is not very easy to read and follow..
+
+	for (int i = 0; i < playerInv.size(); i++)
+	{
+		pokeUrl = "";
+		pokeUrl += "..\\3rdparty\\Poke\\";
+		int num = pokeNums[playerInv[i]];
+		pokeUrl += std::to_string(num);
+		pokeUrl += ".png";
+		std::shared_ptr<Poke> poke = std::make_shared<Poke>(pokeNums[playerInv[i]], pokeNames[playerInv[i]], pokeUrl, 10, 10);
+		invMap.emplace(pokeNums[playerInv[i]], poke);
+	}
+}
+
 
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
@@ -1711,11 +1786,15 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	std::shared_ptr<Scene> sceneSideScene;
 
 	std::unordered_map<int, std::shared_ptr<Poke>> pokeMap;
+	std::unordered_map<int, std::shared_ptr<Poke>> invMap;
+
 
 	SetUpDex(pokeMap);
 
+	SetUpPlayerInv(pokeMap, invMap);
+
 	SetUpBackgroundScene(shaderBackground, sceneBackground, graphicsEnviron);
-	SetUpPokeBattler(shader3d, scene3d, graphicsEnviron, pokeMap);
+	SetUpPokeBattler(shader3d, scene3d, graphicsEnviron, pokeMap, invMap);
 	SetUpSideScene(shaderSideScene, sceneSideScene, graphicsEnviron);
 
 	graphicsEnviron->CreateRenderer("rendererBackground", shaderBackground);
