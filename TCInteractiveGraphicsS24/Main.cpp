@@ -23,11 +23,14 @@
 #include "Generate.h"
 #include "HighlightBehavior.h"
 #include "Poke.h"
+#include <random>
 
 
 // inserting poke scene here
 static void SetUpPokeBattler(std::shared_ptr<Shader>& shader3d,
-	std::shared_ptr<Scene>& scene3d, std::shared_ptr<GraphicsEnvironment>& graphicsEnviron, std::unordered_map<int, std::shared_ptr<Poke>>& pokeMap)
+	std::shared_ptr<Scene>& scene3d, std::shared_ptr<GraphicsEnvironment>& graphicsEnviron, 
+	std::unordered_map<int, std::shared_ptr<Poke>>& pokeMap, 
+	std::unordered_map<int, std::shared_ptr<Poke>> invMap)
 {
 
 	std::shared_ptr<TextFile> vertFile = std::make_shared<TextFile>();
@@ -94,8 +97,8 @@ static void SetUpPokeBattler(std::shared_ptr<Shader>& shader3d,
 	graphicsObject3dFloor->RotateLocalY(90.0f);
 	scene3d->AddObject(graphicsObject3dFloor);
 
-	// new poke code here
-
+	// poke code here, being moved into a factory
+	/*
 	std::shared_ptr<Texture> poke1Tex = std::make_shared<Texture>();
 	// texture sprites from https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/6.png
 	// wiki files also look nice if they can work, https://pokemongo.fandom.com/wiki/Venusaur?file=Venusaur_female.png
@@ -123,11 +126,16 @@ static void SetUpPokeBattler(std::shared_ptr<Shader>& shader3d,
 	bufferPoke1->SetTexture(poke1Tex);
 
 	poke1->SetVertexBuffer(bufferPoke1);
+	*/
+	// end commenting of poke 1 generation
+
+
 
 	//poke1->CreateBoundingBox(poke1Width, poke1Height, 0.5f);
 	// this probably doesnt need a bounding box
 
-
+	// trying to replace this with the named poke objects now
+	/*
 	//poke 2 here
 	std::shared_ptr<Texture> poke2Tex = std::make_shared<Texture>();
 	std::string poke2Dex = "6";
@@ -158,6 +166,7 @@ static void SetUpPokeBattler(std::shared_ptr<Shader>& shader3d,
 
 	poke2->CreateBoundingBox(poke2Width, poke2Height, 0.5f);
 	// this should probably be a sphere bounding box for detection of overlap with the ball
+	*/
 
 
 	//attack button here
@@ -234,19 +243,128 @@ static void SetUpPokeBattler(std::shared_ptr<Shader>& shader3d,
 	catchBtn->AddBehavior("highlight", catchBtnHighlight);
 
 
-	poke1->SetPosition(glm::vec3(-7.5f, 4.0f, 3.0f));  //can adjust position if needed
-	scene3d->AddObject(poke1);
+	//poke1->SetPosition(glm::vec3(-7.5f, 4.0f, 3.0f));  //can adjust position if needed
+	//scene3d->AddObject(poke1);
 
-	poke2->SetPosition(glm::vec3(7.5f, 4.0f, 0.0f));  //can adjust position if needed
-	scene3d->AddObject(poke2);
+	//poke2->SetPosition(glm::vec3(7.5f, 4.0f, 0.0f));  //can adjust position if needed
+	//scene3d->AddObject(poke2);
 
 	attackBtn->SetPosition(glm::vec3(-4.0f, 1.0f, 10.0f));
 	scene3d->AddObject(attackBtn);
 	catchBtn->SetPosition(glm::vec3(4.0f, 1.0f, 10.0f));
 	scene3d->AddObject(catchBtn);
 
+	// new code
+	std::vector<int> dexNums = { 1, 2, 3, 4, 5, 6, 9, 25, 65, 68, 149, 150, 151 };
+	std::vector<int> dexPlayerNums = { 3, 149, 150 };
+	std::random_device rand;
+	std::mt19937 gen(rand());
+	int min = 1;
+	int max = dexNums.size();
+	std::uniform_int_distribution<int> dist(min, max);
+	int randomInt = dist(gen);
+	int dexSel = dexNums[randomInt - 1];
+	//std::shared_ptr<GraphicsObject> startingEnemy = std::make_shared<GraphicsObject>();
+	std::string currEnemy;
+
+	// testing new playerinv generation code here
+	// testing new poke generation code here
+	for (int i = 0; i < invMap.size(); i++)
+	{
+		std::shared_ptr<Texture> pokeFactoryTex = std::make_shared<Texture>();
+		std::string pokeFactoryDex = std::to_string(dexPlayerNums[i]);;
+
+		float pokeFactoryWidth = 10.0f;
+		float pokeFactoryHeight = 10.0f;
+
+		std::shared_ptr<GraphicsObject> pokeFactory = std::make_shared<GraphicsObject>();
+		std::shared_ptr<VertexBuffer> bufferpokeFactory = Generate::XYPlaneNormReverse(pokeFactoryWidth, pokeFactoryHeight);
+		std::shared_ptr<Poke> pokeFactoryObject = invMap[dexPlayerNums[i]];
+		pokeFactoryTex->LoadTextureDataFromFile(pokeFactoryObject->GetUrl());
+		pokeFactory->SetPoke(pokeFactoryObject);
+
+		bufferpokeFactory->AddVertexAttribute("position", 0, 3, 0);
+		bufferpokeFactory->AddVertexAttribute("vertexColor", 1, 4, 3);
+		bufferpokeFactory->AddVertexAttribute("normal", 2, 3, 7);
+		bufferpokeFactory->AddVertexAttribute("texCoord", 3, 2, 10);
+
+		// adjusting the texture settings here
+		pokeFactoryTex->SetWrapS(GL_REPEAT);
+		pokeFactoryTex->SetWrapT(GL_REPEAT);
+		pokeFactoryTex->SetMagFilter(GL_NEAREST);
+		pokeFactoryTex->SetMinFilter(GL_NEAREST);
+
+		bufferpokeFactory->SetTexture(pokeFactoryTex);
+
+		pokeFactory->SetVertexBuffer(bufferpokeFactory);
+
+		//pokeFactory->CreateBoundingBox(pokeFactoryWidth, pokeFactoryHeight, 0.5f);
+		// this should probably be a sphere bounding box for detection of overlap with the ball
+
+		pokeFactory->SetPosition(glm::vec3(60.5f, 4.0f, 0.0f));  //can adjust position if needed
+		scene3d->AddObject(pokeFactory);
+		graphicsEnviron->AddObject(pokeFactoryObject->GetName() + "player", pokeFactory);
+
+		if (pokeFactoryDex == "3")  // starting with venusaur still.. need to change this to be based off whatever starter is chosen
+		{
+			pokeFactory->SetPosition(glm::vec3(-7.5f, 4.0f, 3.0f));
+			graphicsEnviron->GetObjManager()->SetCurrPokeSel(pokeFactoryObject->GetName() + "player");
+		}
+	}
+
+
+	// testing new poke generation code here
+	for (int i = 0; i < pokeMap.size(); i++)
+	{
+		std::shared_ptr<Texture> pokeFactoryTex = std::make_shared<Texture>();
+		std::string pokeFactoryDex = std::to_string(dexNums[i]);
+
+		float pokeFactoryWidth = 10.0f;
+		float pokeFactoryHeight = 10.0f;
+
+		std::shared_ptr<GraphicsObject> pokeFactory = std::make_shared<GraphicsObject>();
+		std::shared_ptr<VertexBuffer> bufferpokeFactory = Generate::XYPlaneNorm(pokeFactoryWidth, pokeFactoryHeight);
+		std::shared_ptr<Poke> pokeFactoryObject = pokeMap[dexNums[i]];
+		pokeFactoryTex->LoadTextureDataFromFile(pokeFactoryObject->GetUrl());
+		pokeFactory->SetPoke(pokeFactoryObject);
+
+		bufferpokeFactory->AddVertexAttribute("position", 0, 3, 0);
+		bufferpokeFactory->AddVertexAttribute("vertexColor", 1, 4, 3);
+		bufferpokeFactory->AddVertexAttribute("normal", 2, 3, 7);
+		bufferpokeFactory->AddVertexAttribute("texCoord", 3, 2, 10);
+
+		// adjusting the texture settings here
+		pokeFactoryTex->SetWrapS(GL_REPEAT);
+		pokeFactoryTex->SetWrapT(GL_REPEAT);
+		pokeFactoryTex->SetMagFilter(GL_NEAREST);
+		pokeFactoryTex->SetMinFilter(GL_NEAREST);
+
+		bufferpokeFactory->SetTexture(pokeFactoryTex);
+
+		pokeFactory->SetVertexBuffer(bufferpokeFactory);
+
+		pokeFactory->CreateBoundingBox(pokeFactoryWidth, pokeFactoryHeight, 0.5f);
+		// this should probably be a sphere bounding box for detection of overlap with the ball
+
+		pokeFactory->SetPosition(glm::vec3(60.5f, 4.0f, 0.0f));  //can adjust position if needed
+		scene3d->AddObject(pokeFactory);
+		graphicsEnviron->AddObject(pokeFactoryObject->GetName(), pokeFactory);
+
+		if (dexNums[i] == dexSel)
+		{
+			//startingEnemy == pokeFactory;
+			pokeFactory->SetPosition(glm::vec3(7.5f, 4.0f, 0.0f));
+			currEnemy = pokeFactoryObject->GetName();
+			graphicsEnviron->GetObjManager()->SetCurrEnemy(currEnemy);
+		}
+	}
+
+	//graphicsEnviron->GetObjManager()->GetObjectW(pokeMap[dexSel]->GetName())->SetPosition(glm::vec3(7.5f, 4.0f, 0.0f));
+	//startingEnemy->SetPosition(glm::vec3(7.5f, 4.0f, 0.0f));
+
 	//testing to check lighting here
-	// new poke code here
+	/*
+	// poke code here, being moved into a factory
 
 	std::shared_ptr<Texture> poke1SideTex = std::make_shared<Texture>();
 	// texture sprites from https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/3.png
@@ -316,16 +434,18 @@ static void SetUpPokeBattler(std::shared_ptr<Shader>& shader3d,
 
 	poke2Side->SetPosition(glm::vec3(7.5f + 60.0f, 4.0f, 0.0f));  //can adjust position if needed
 	scene3d->AddObject(poke2Side);
+	
 
 	//graphicsEnviron->AddObject("background", background);
-	graphicsEnviron->AddObject("poke1Side", poke1Side);
-	graphicsEnviron->AddObject("poke2Side", poke2Side);
+	graphicsEnviron->AddObject(poke1SideObject->GetName() + "player", poke1Side);
+	graphicsEnviron->AddObject(poke2SideObject->GetName() + "player", poke2Side);
+	*/
 	
 
 	graphicsEnviron->AddObject("floor", graphicsObject3dFloor);
 	//graphicsEnviron->AddObject("background", background);
-	graphicsEnviron->AddObject("poke1", poke1);
-	graphicsEnviron->AddObject("poke2", poke2);
+	//graphicsEnviron->AddObject(poke1Object->GetName() + "player", poke1);
+	//graphicsEnviron->AddObject("poke2", poke2);
 	graphicsEnviron->AddObject("attackBtn", attackBtn);
 	graphicsEnviron->AddObject("catchBtn", catchBtn);
 
@@ -639,6 +759,119 @@ static void SetUpBackgroundScene(std::shared_ptr<Shader>&
 	backgroundScene->AddObject(currSelHp4);
 	graphicsEnviron->AddObject("currSelHp4", currSelHp4);
 
+	// 3
+	std::shared_ptr<GraphicsObject> currSelHp3 = std::make_shared<GraphicsObject>();
+
+	std::shared_ptr<VertexBuffer> currSelHp3Buffer = Generate::XYPlane(3, 2);
+
+	currSelHp3Buffer->AddVertexAttribute("position", 0, 3, 0);
+	currSelHp3Buffer->AddVertexAttribute("vertexColor", 1, 3, 3);
+	currSelHp3Buffer->AddVertexAttribute("texCoord", 2, 2, 6);
+
+
+	std::shared_ptr<Texture> currSelHp3Tex = std::make_shared<Texture>();
+	currSelHp3Tex->LoadTextureDataFromFile("..\\3rdparty\\Poke\\HP3.png");
+
+	// adjusting the texture settings here
+	currSelHp3Tex->SetWrapS(GL_MIRRORED_REPEAT);
+	currSelHp3Tex->SetWrapT(GL_MIRRORED_REPEAT);
+	currSelHp3Tex->SetMagFilter(GL_NEAREST);
+	currSelHp3Tex->SetMinFilter(GL_NEAREST);
+
+
+	currSelHp3Buffer->SetTexture(currSelHp3Tex);
+	currSelHp3->SetVertexBuffer(currSelHp3Buffer);
+
+	currSelHp3->SetPosition(glm::vec3(-50.5f, 10.0f, 3.0f));
+
+	backgroundScene->AddObject(currSelHp3);
+	graphicsEnviron->AddObject("currSelHp3", currSelHp3);
+
+
+	// 2
+	std::shared_ptr<GraphicsObject> currSelHp2 = std::make_shared<GraphicsObject>();
+
+	std::shared_ptr<VertexBuffer> currSelHp2Buffer = Generate::XYPlane(3, 2);
+
+	currSelHp2Buffer->AddVertexAttribute("position", 0, 3, 0);
+	currSelHp2Buffer->AddVertexAttribute("vertexColor", 1, 3, 3);
+	currSelHp2Buffer->AddVertexAttribute("texCoord", 2, 2, 6);
+
+
+	std::shared_ptr<Texture> currSelHp2Tex = std::make_shared<Texture>();
+	currSelHp2Tex->LoadTextureDataFromFile("..\\3rdparty\\Poke\\HP2.png");
+
+	// adjusting the texture settings here
+	currSelHp2Tex->SetWrapS(GL_MIRRORED_REPEAT);
+	currSelHp2Tex->SetWrapT(GL_MIRRORED_REPEAT);
+	currSelHp2Tex->SetMagFilter(GL_NEAREST);
+	currSelHp2Tex->SetMinFilter(GL_NEAREST);
+
+
+	currSelHp2Buffer->SetTexture(currSelHp2Tex);
+	currSelHp2->SetVertexBuffer(currSelHp2Buffer);
+
+	currSelHp2->SetPosition(glm::vec3(-50.5f, 10.0f, 3.0f));
+
+	backgroundScene->AddObject(currSelHp2);
+	graphicsEnviron->AddObject("currSelHp2", currSelHp2);
+
+	// 1
+	std::shared_ptr<GraphicsObject> currSelHp1 = std::make_shared<GraphicsObject>();
+
+	std::shared_ptr<VertexBuffer> currSelHp1Buffer = Generate::XYPlane(3, 2);
+
+	currSelHp1Buffer->AddVertexAttribute("position", 0, 3, 0);
+	currSelHp1Buffer->AddVertexAttribute("vertexColor", 1, 3, 3);
+	currSelHp1Buffer->AddVertexAttribute("texCoord", 2, 2, 6);
+
+
+	std::shared_ptr<Texture> currSelHp1Tex = std::make_shared<Texture>();
+	currSelHp1Tex->LoadTextureDataFromFile("..\\3rdparty\\Poke\\HP1.png");
+
+	// adjusting the texture settings here
+	currSelHp1Tex->SetWrapS(GL_MIRRORED_REPEAT);
+	currSelHp1Tex->SetWrapT(GL_MIRRORED_REPEAT);
+	currSelHp1Tex->SetMagFilter(GL_NEAREST);
+	currSelHp1Tex->SetMinFilter(GL_NEAREST);
+
+
+	currSelHp1Buffer->SetTexture(currSelHp1Tex);
+	currSelHp1->SetVertexBuffer(currSelHp1Buffer);
+
+	currSelHp1->SetPosition(glm::vec3(-50.5f, 10.0f, 3.0f));
+
+	backgroundScene->AddObject(currSelHp1);
+	graphicsEnviron->AddObject("currSelHp1", currSelHp1);
+
+	// 0
+	std::shared_ptr<GraphicsObject> currSelHp0 = std::make_shared<GraphicsObject>();
+
+	std::shared_ptr<VertexBuffer> currSelHp0Buffer = Generate::XYPlane(3, 2);
+
+	currSelHp0Buffer->AddVertexAttribute("position", 0, 3, 0);
+	currSelHp0Buffer->AddVertexAttribute("vertexColor", 1, 3, 3);
+	currSelHp0Buffer->AddVertexAttribute("texCoord", 2, 2, 6);
+
+
+	std::shared_ptr<Texture> currSelHp0Tex = std::make_shared<Texture>();
+	currSelHp0Tex->LoadTextureDataFromFile("..\\3rdparty\\Poke\\HP0.png");
+
+	// adjusting the texture settings here
+	currSelHp0Tex->SetWrapS(GL_MIRRORED_REPEAT);
+	currSelHp0Tex->SetWrapT(GL_MIRRORED_REPEAT);
+	currSelHp0Tex->SetMagFilter(GL_NEAREST);
+	currSelHp0Tex->SetMinFilter(GL_NEAREST);
+
+
+	currSelHp0Buffer->SetTexture(currSelHp0Tex);
+	currSelHp0->SetVertexBuffer(currSelHp0Buffer);
+
+	currSelHp0->SetPosition(glm::vec3(-50.5f, 10.0f, 3.0f));
+
+	backgroundScene->AddObject(currSelHp0);
+	graphicsEnviron->AddObject("currSelHp0", currSelHp0);
+
 
 	// curr enemy hp
 	std::shared_ptr<GraphicsObject> currEnemyHp10 = std::make_shared<GraphicsObject>();
@@ -838,6 +1071,119 @@ static void SetUpBackgroundScene(std::shared_ptr<Shader>&
 
 	backgroundScene->AddObject(currEnemyHp4);
 	graphicsEnviron->AddObject("currEnemyHp4", currEnemyHp4);
+
+	// 3
+	std::shared_ptr<GraphicsObject> currEnemyHp3 = std::make_shared<GraphicsObject>();
+
+	std::shared_ptr<VertexBuffer> currEnemyHp3Buffer = Generate::XYPlane(3, 2);
+
+	currEnemyHp3Buffer->AddVertexAttribute("position", 0, 3, 0);
+	currEnemyHp3Buffer->AddVertexAttribute("vertexColor", 1, 3, 3);
+	currEnemyHp3Buffer->AddVertexAttribute("texCoord", 2, 2, 6);
+
+
+	std::shared_ptr<Texture> currEnemyHp3Tex = std::make_shared<Texture>();
+	currEnemyHp3Tex->LoadTextureDataFromFile("..\\3rdparty\\Poke\\HP3.png");
+
+	// adjusting the texture settings here
+	currEnemyHp3Tex->SetWrapS(GL_MIRRORED_REPEAT);
+	currEnemyHp3Tex->SetWrapT(GL_MIRRORED_REPEAT);
+	currEnemyHp3Tex->SetMagFilter(GL_NEAREST);
+	currEnemyHp3Tex->SetMinFilter(GL_NEAREST);
+
+
+	currEnemyHp3Buffer->SetTexture(currEnemyHp3Tex);
+	currEnemyHp3->SetVertexBuffer(currEnemyHp3Buffer);
+
+	currEnemyHp3->SetPosition(glm::vec3(-50.5f, 10.0f, 3.0f));
+
+	backgroundScene->AddObject(currEnemyHp3);
+	graphicsEnviron->AddObject("currEnemyHp3", currEnemyHp3);
+
+
+	// 2
+	std::shared_ptr<GraphicsObject> currEnemyHp2 = std::make_shared<GraphicsObject>();
+
+	std::shared_ptr<VertexBuffer> currEnemyHp2Buffer = Generate::XYPlane(3, 2);
+
+	currEnemyHp2Buffer->AddVertexAttribute("position", 0, 3, 0);
+	currEnemyHp2Buffer->AddVertexAttribute("vertexColor", 1, 3, 3);
+	currEnemyHp2Buffer->AddVertexAttribute("texCoord", 2, 2, 6);
+
+
+	std::shared_ptr<Texture> currEnemyHp2Tex = std::make_shared<Texture>();
+	currEnemyHp2Tex->LoadTextureDataFromFile("..\\3rdparty\\Poke\\HP2.png");
+
+	// adjusting the texture settings here
+	currEnemyHp2Tex->SetWrapS(GL_MIRRORED_REPEAT);
+	currEnemyHp2Tex->SetWrapT(GL_MIRRORED_REPEAT);
+	currEnemyHp2Tex->SetMagFilter(GL_NEAREST);
+	currEnemyHp2Tex->SetMinFilter(GL_NEAREST);
+
+
+	currEnemyHp2Buffer->SetTexture(currEnemyHp2Tex);
+	currEnemyHp2->SetVertexBuffer(currEnemyHp2Buffer);
+
+	currEnemyHp2->SetPosition(glm::vec3(-50.5f, 10.0f, 3.0f));
+
+	backgroundScene->AddObject(currEnemyHp2);
+	graphicsEnviron->AddObject("currEnemyHp2", currEnemyHp2);
+
+	// 1
+	std::shared_ptr<GraphicsObject> currEnemyHp1 = std::make_shared<GraphicsObject>();
+
+	std::shared_ptr<VertexBuffer> currEnemyHp1Buffer = Generate::XYPlane(3, 2);
+
+	currEnemyHp1Buffer->AddVertexAttribute("position", 0, 3, 0);
+	currEnemyHp1Buffer->AddVertexAttribute("vertexColor", 1, 3, 3);
+	currEnemyHp1Buffer->AddVertexAttribute("texCoord", 2, 2, 6);
+
+
+	std::shared_ptr<Texture> currEnemyHp1Tex = std::make_shared<Texture>();
+	currEnemyHp1Tex->LoadTextureDataFromFile("..\\3rdparty\\Poke\\HP1.png");
+
+	// adjusting the texture settings here
+	currEnemyHp1Tex->SetWrapS(GL_MIRRORED_REPEAT);
+	currEnemyHp1Tex->SetWrapT(GL_MIRRORED_REPEAT);
+	currEnemyHp1Tex->SetMagFilter(GL_NEAREST);
+	currEnemyHp1Tex->SetMinFilter(GL_NEAREST);
+
+
+	currEnemyHp1Buffer->SetTexture(currEnemyHp1Tex);
+	currEnemyHp1->SetVertexBuffer(currEnemyHp1Buffer);
+
+	currEnemyHp1->SetPosition(glm::vec3(-50.5f, 10.0f, 3.0f));
+
+	backgroundScene->AddObject(currEnemyHp1);
+	graphicsEnviron->AddObject("currEnemyHp1", currEnemyHp1);
+
+	// 0
+	std::shared_ptr<GraphicsObject> currEnemyHp0 = std::make_shared<GraphicsObject>();
+
+	std::shared_ptr<VertexBuffer> currEnemyHp0Buffer = Generate::XYPlane(3, 2);
+
+	currEnemyHp0Buffer->AddVertexAttribute("position", 0, 3, 0);
+	currEnemyHp0Buffer->AddVertexAttribute("vertexColor", 1, 3, 3);
+	currEnemyHp0Buffer->AddVertexAttribute("texCoord", 2, 2, 6);
+
+
+	std::shared_ptr<Texture> currEnemyHp0Tex = std::make_shared<Texture>();
+	currEnemyHp0Tex->LoadTextureDataFromFile("..\\3rdparty\\Poke\\HP0.png");
+
+	// adjusting the texture settings here
+	currEnemyHp0Tex->SetWrapS(GL_MIRRORED_REPEAT);
+	currEnemyHp0Tex->SetWrapT(GL_MIRRORED_REPEAT);
+	currEnemyHp0Tex->SetMagFilter(GL_NEAREST);
+	currEnemyHp0Tex->SetMinFilter(GL_NEAREST);
+
+
+	currEnemyHp0Buffer->SetTexture(currEnemyHp0Tex);
+	currEnemyHp0->SetVertexBuffer(currEnemyHp0Buffer);
+
+	currEnemyHp0->SetPosition(glm::vec3(-50.5f, 10.0f, 3.0f));
+
+	backgroundScene->AddObject(currEnemyHp0);
+	graphicsEnviron->AddObject("currEnemyHp0", currEnemyHp0);
 }
 
 
@@ -1388,6 +1734,25 @@ static void SetUpDex(std::unordered_map<int, std::shared_ptr<Poke>>& pokeMap)
 	}		
 }
 
+static void SetUpPlayerInv(std::unordered_map<int, std::shared_ptr<Poke>>& pokeMap, std::unordered_map<int, std::shared_ptr<Poke>>& invMap)
+{
+	std::vector<std::string> pokeNames = { "Bulbasaur", "Ivysaur", "Venusaur", "Charmander", "Charmeleon", "Charizard", "Blastoise", "Pikachu", "Alakazam", "Machamp", "Dragonite", "Mewtwo", "Mew" };
+	std::vector<int> pokeNums = { 1, 2, 3, 4, 5, 6, 9, 25, 65, 68, 149, 150, 151 };
+	std::string pokeUrl = "";
+	std::vector<int> playerInv = { 2, 10, 11 };  // using index placeholders here. this is not very easy to read and follow..
+
+	for (int i = 0; i < playerInv.size(); i++)
+	{
+		pokeUrl = "";
+		pokeUrl += "..\\3rdparty\\Poke\\";
+		int num = pokeNums[playerInv[i]];
+		pokeUrl += std::to_string(num);
+		pokeUrl += ".png";
+		std::shared_ptr<Poke> poke = std::make_shared<Poke>(pokeNums[playerInv[i]], pokeNames[playerInv[i]], pokeUrl, 10, 10);
+		invMap.emplace(pokeNums[playerInv[i]], poke);
+	}
+}
+
 
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
@@ -1421,11 +1786,15 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	std::shared_ptr<Scene> sceneSideScene;
 
 	std::unordered_map<int, std::shared_ptr<Poke>> pokeMap;
+	std::unordered_map<int, std::shared_ptr<Poke>> invMap;
+
 
 	SetUpDex(pokeMap);
 
+	SetUpPlayerInv(pokeMap, invMap);
+
 	SetUpBackgroundScene(shaderBackground, sceneBackground, graphicsEnviron);
-	SetUpPokeBattler(shader3d, scene3d, graphicsEnviron, pokeMap);
+	SetUpPokeBattler(shader3d, scene3d, graphicsEnviron, pokeMap, invMap);
 	SetUpSideScene(shaderSideScene, sceneSideScene, graphicsEnviron);
 
 	graphicsEnviron->CreateRenderer("rendererBackground", shaderBackground);
@@ -1439,7 +1808,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
 	graphicsEnviron->StaticAllocate();
 
-	graphicsEnviron->Run3D();
+	graphicsEnviron->Run3D(pokeMap);
 	
 	
 	return 0;

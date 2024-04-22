@@ -3,6 +3,7 @@
 Poke::Poke(int id, std::string name, std::string imageurl, int maxHp, int currHp)
 {
 	this->id = id;
+	// 	this->dex = dex;  // need to shift where this code is all aware of the dex instead of id? since id will be changing as it is moved around the database
 	this->name = name;
 	this->imageurl = imageurl;
 	this->maxHp = maxHp;
@@ -40,5 +41,9 @@ void Poke::SetCurrHp(int damage)
 	if (currHp < 0)
 	{
 		currHp = 0;
+	}
+	else if (currHp > maxHp)
+	{
+		currHp = maxHp;
 	}
 }
