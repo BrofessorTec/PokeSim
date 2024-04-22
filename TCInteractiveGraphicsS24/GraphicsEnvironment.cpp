@@ -7,6 +7,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <memory>
+#include <random>
 
 
 
@@ -41,7 +42,7 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 	std::string currSel = objManager->GetCurrPokeSel();
 	std::string sel1 = objManager->GetPoke1Sel();
 	std::string sel2 = objManager->GetPoke2Sel();;
-
+	// should have 3-6 added here as well
 
 
 	if (key == GLFW_KEY_1 && action == GLFW_PRESS) {
@@ -376,7 +377,7 @@ glm::mat4 GraphicsEnvironment::CreateViewMatrix(const glm::vec3& position, const
 	return glm::inverse(view);
 }
 
-void GraphicsEnvironment::Run3D()
+void GraphicsEnvironment::Run3D(std::unordered_map<int, std::shared_ptr<Poke>>& pokeMap)
 {	
 
 	ImGuiIO& io = ImGui::GetIO();
@@ -441,11 +442,11 @@ void GraphicsEnvironment::Run3D()
 
 	// this needs to be done for whatever the current selection is, or just all pokes not just poke1
 	std::string currSel = objManager->GetCurrPokeSel();
-	attackAnimation1->SetObject(objManager->GetObject("poke1"));
-	objManager->GetObject("poke1")->SetAnimation(attackAnimation1);
+	attackAnimation1->SetObject(objManager->GetObject(currSel));
+	objManager->GetObject(currSel)->SetAnimation(attackAnimation1);
 
-	attackAnimation2->SetObject(objManager->GetObject("poke2"));
-	objManager->GetObject("poke2")->SetAnimation(attackAnimation2);
+	attackAnimation2->SetObject(objManager->GetObject(objManager->GetCurrEnemy()));
+	objManager->GetObject(objManager->GetCurrEnemy())->SetAnimation(attackAnimation2);
 
 	int prevCurrSelHp = objManager->GetObject(objManager->GetCurrPokeSel())->GetPoke()->GetCurrHp();
 	int prevEnemySelHp = objManager->GetObject(objManager->GetCurrEnemy())->GetPoke()->GetCurrHp();
@@ -584,10 +585,14 @@ void GraphicsEnvironment::Run3D()
 		// call update
 		objManager->Update(elapsedSeconds);
 
-		//
-		if (objManager->GetObject(objManager->GetCurrPokeSel())->GetPoke()->GetCurrHp() != prevCurrSelHp)
+		std::shared_ptr<Poke> currSel = objManager->GetObject(objManager->GetCurrPokeSel())->GetPoke();
+		std::shared_ptr<Poke> currEnemy = objManager->GetObject(objManager->GetCurrEnemy())->GetPoke();
+
+
+		//  this should probably all be in the Update() function instead of here
+		if (currSel->GetCurrHp() != prevCurrSelHp && currSel->GetCurrHp() > 0)
 		{
-			int currHp = objManager->GetObject(objManager->GetCurrPokeSel())->GetPoke()->GetCurrHp();
+			int currHp = currSel->GetCurrHp();
 			std::string currHpObject = "currSelHp" + std::to_string(currHp);
 			glm::vec3 currHpPos = objManager->GetObject(currHpObject)->GetReferenceFrame()[3];
 
@@ -600,24 +605,107 @@ void GraphicsEnvironment::Run3D()
 			objManager->GetObject(currHpObject)->SetPosition(prevHpPos);
 
 			// update prev
-			prevCurrSelHp = objManager->GetObject(objManager->GetCurrPokeSel())->GetPoke()->GetCurrHp();
+			prevCurrSelHp = currSel->GetCurrHp();
+
+			if (currEnemy->GetCurrHp() != prevEnemySelHp && currEnemy->GetCurrHp() > 0)
+			{
+				int currEnemyHp = currEnemy->GetCurrHp();
+				std::string currEnemyHpObject = "currEnemyHp" + std::to_string(currEnemyHp);
+				glm::vec3 currEnemyHpPos = objManager->GetObject(currEnemyHpObject)->GetReferenceFrame()[3];
+
+
+				//need to swap out prev with the Curr
+				std::string prevEnemyHpObject = "currEnemyHp" + std::to_string(prevEnemySelHp);
+				glm::vec3 prevEnemyHpPos = objManager->GetObject(prevEnemyHpObject)->GetReferenceFrame()[3];
+
+				objManager->GetObject(prevEnemyHpObject)->SetPosition(currEnemyHpPos);
+				objManager->GetObject(currEnemyHpObject)->SetPosition(prevEnemyHpPos);
+
+				// update prev
+				prevEnemySelHp = currEnemy->GetCurrHp();
+			}
+			else if (currEnemy->GetCurrHp() <= 0)
+			{
+				// change out poke here before it would attack. maybe not let the new poke attack on its first turn either?
+				std::random_device rand;
+				std::mt19937 gen(rand());
+				std::vector<int> dexNums = { 1, 2, 3, 4, 5, 6, 9, 25, 65, 68, 149, 150, 151 };
+				int min = 1;
+				int max = pokeMap.size();
+				std::uniform_int_distribution<int> dist(min, max);
+				int randomInt = dist(gen);
+				int dexSel = dexNums[randomInt - 1];
+				pokeMap[dexSel]->SetCurrHp(pokeMap[dexSel]->GetMaxHp()); // make sure new poke spawns with full health
+
+				//trying to swap postitions here
+				std::string placeholderEnemyName = pokeMap[dexSel]->GetName();
+				glm::vec3 placeholderPos = static_cast<glm::vec3>(objManager->GetObject(placeholderEnemyName)->GetReferenceFrame()[3]);
+				objManager->GetObject(placeholderEnemyName)->SetPosition(objManager->GetObject(currEnemy->GetName())->GetReferenceFrame()[3]);
+				objManager->GetObject(currEnemy->GetName())->SetPosition(placeholderPos);
+				objManager->SetCurrEnemy(placeholderEnemyName);  // i think this needs to be done, but not currently naming the objects based off the poke name..
+
+				currEnemy = pokeMap[dexSel];
+				//
+				std::shared_ptr<AttackAnimation> attackAnimation1 = std::make_shared<AttackAnimation>();
+
+				attackAnimation1->SetObject(objManager->GetObject(objManager->GetCurrEnemy()));
+				objManager->GetObject(objManager->GetCurrEnemy())->SetAnimation(attackAnimation1);
+				objManager->GetObject(objManager->GetCurrEnemy())->GetPoke()->SetCurrHp(-50); //attempting to brute force heal
+
+
+				int currEnemyHp = currEnemy->GetCurrHp();
+				std::string currEnemyHpObject = "currEnemyHp" + std::to_string(currEnemyHp);
+				glm::vec3 currEnemyHpPos = objManager->GetObject(currEnemyHpObject)->GetReferenceFrame()[3];
+
+
+				//need to swap out prev with the Curr
+				std::string prevEnemyHpObject = "currEnemyHp" + std::to_string(prevEnemySelHp);
+				glm::vec3 prevEnemyHpPos = objManager->GetObject(prevEnemyHpObject)->GetReferenceFrame()[3];
+
+				objManager->GetObject(prevEnemyHpObject)->SetPosition(currEnemyHpPos);
+				objManager->GetObject(currEnemyHpObject)->SetPosition(prevEnemyHpPos);
+				// update prev
+				prevEnemySelHp = currEnemy->GetCurrHp();
+			}
+
 		}
-		if (objManager->GetObject(objManager->GetCurrEnemy())->GetPoke()->GetCurrHp() != prevEnemySelHp)
+		
+		if (currSel->GetCurrHp() <= 0)
 		{
-			int currEnemyHp = objManager->GetObject(objManager->GetCurrEnemy())->GetPoke()->GetCurrHp();
-			std::string currEnemyHpObject = "currEnemyHp" + std::to_string(currEnemyHp);
-			glm::vec3 currEnemyHpPos = objManager->GetObject(currEnemyHpObject)->GetReferenceFrame()[3];
+			// change out user poke here
+			// could just forcefully do the key swap to one thats not dead
+			std::string currSel = objManager->GetCurrPokeSel();
+			int pokeInvSize = 3; // need to tie this to the actual poke collection size later
+			//std::string newSel;
 
+			if (objManager->GetObject(objManager->GetPoke1Sel())->GetPoke()->GetCurrHp() > 0) // should also check if this is null before this, if you just started game
+			{
+				//newSel = 1;
+				std::string placeholderSelName = objManager->GetCurrPokeSel();
+				glm::vec3 placeholderPos = static_cast<glm::vec3>(objManager->GetObject(currSel)->GetReferenceFrame()[3]);
+				objManager->GetObject(currSel)->SetPosition(objManager->GetObject(objManager->GetObject(objManager->GetPoke1Sel())->GetPoke()->GetName() + "player")->GetReferenceFrame()[3]);
+				objManager->GetObject(objManager->GetObject(objManager->GetPoke1Sel())->GetPoke()->GetName() + "player")->SetPosition(placeholderPos);
+				objManager->SetCurrPokeSel(objManager->GetObject(objManager->GetPoke1Sel())->GetPoke()->GetName() + "player");
+				objManager->SetPoke1Sel(placeholderSelName);
+			}
+			else if (objManager->GetObject(objManager->GetPoke2Sel())->GetPoke()->GetCurrHp() > 0) // should also check if this is null before this, if you just started game
+			{
+				//newSel = 2;
+				std::string placeholderSelName = objManager->GetCurrPokeSel();
+				glm::vec3 placeholderPos = static_cast<glm::vec3>(objManager->GetObject(currSel)->GetReferenceFrame()[3]);
+				objManager->GetObject(currSel)->SetPosition(objManager->GetObject(objManager->GetObject(objManager->GetPoke2Sel())->GetPoke()->GetName() + "player")->GetReferenceFrame()[3]);
+				objManager->GetObject(objManager->GetObject(objManager->GetPoke2Sel())->GetPoke()->GetName() + "player")->SetPosition(placeholderPos);
+				objManager->SetCurrPokeSel(objManager->GetObject(objManager->GetPoke2Sel())->GetPoke()->GetName() + "player");
+				objManager->SetPoke2Sel(placeholderSelName);
+			}
 
-			//need to swap out prev with the Curr
-			std::string prevEnemyHpObject = "currEnemyHp" + std::to_string(prevEnemySelHp);
-			glm::vec3 prevEnemyHpPos = objManager->GetObject(prevEnemyHpObject)->GetReferenceFrame()[3];
+			currSel = objManager->GetCurrPokeSel();
 
-			objManager->GetObject(prevEnemyHpObject)->SetPosition(currEnemyHpPos);
-			objManager->GetObject(currEnemyHpObject)->SetPosition(prevEnemyHpPos);
+			std::shared_ptr<AttackAnimation> attackAnimation1 = std::make_shared<AttackAnimation>();
 
-			// update prev
-			prevEnemySelHp = objManager->GetObject(objManager->GetCurrEnemy())->GetPoke()->GetCurrHp();
+			attackAnimation1->SetObject(objManager->GetObject(currSel));
+			objManager->GetObject(currSel)->SetAnimation(attackAnimation1);
+
 		}
 
 		Render();

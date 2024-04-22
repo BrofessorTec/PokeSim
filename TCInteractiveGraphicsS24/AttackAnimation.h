@@ -13,6 +13,7 @@ private:
 	bool firstPassCompleted = false;
 	bool secondPassCompleted = false;
 	bool completed = false;
+	glm::mat4 startingFrame = glm::mat4(1.0f);
 public:
 	AttackAnimation(glm::vec3 direction = glm::vec3(0.0f, 0.0f, -1.0f), float speed
 		= 180.0f)

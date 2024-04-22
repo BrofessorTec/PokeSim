@@ -5,10 +5,10 @@ class ObjectManager
 {
 private:
 	std::unordered_map<std::string, std::shared_ptr<GraphicsObject>> objectsMap;
-	std::string currPokeSel = "poke1";
+	std::string currPokeSel = "Venusaurplayer";
 	std::string currEnemy = "poke2";
-	std::string sel1 = "poke1Side";
-	std::string sel2 = "poke2Side";
+	std::string sel1 = "Dragoniteplayer";
+	std::string sel2 = "Mewtwoplayer";
 
 
 public:
