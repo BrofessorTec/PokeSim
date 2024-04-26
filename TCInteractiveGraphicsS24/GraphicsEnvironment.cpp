@@ -27,6 +27,10 @@ void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
 		}
 
 		// if interseting with catch, spawn a ball
+		if (objManager->GetObject("catchBtn")->IsIntersectingWithRay(GraphicsEnvironment::self->GetMouseRayVar())) {
+			// catch logic here to add to invMap
+
+		}
 
 		// if ball is spawned, clicking will throw it
 
