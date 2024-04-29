@@ -7,7 +7,7 @@ void SlidingAnimation::Update(double elapsedSeconds)
 {
 	if (object == nullptr) return;
 	float deltaSpeed;
-	if (direction == glm::vec3(0.0f, 0.0f, -1.0f))
+	if (direction == glm::vec3(-1.0f, 0.0f, 0.0f))
 	{
 		deltaSpeed = -static_cast<float>(speed * elapsedSeconds);
 	}
@@ -20,17 +20,17 @@ void SlidingAnimation::Update(double elapsedSeconds)
 	// need to change this from rotation to moving in the direction
 	//referenceFrame = glm::rotate(referenceFrame, glm::radians(deltaSpeed),
 	//	direction);
-	if (isMoving && distanceMoved < distanceToMove)
+	if (isMoving && distanceMoved < distanceToMove && !completed)
 	{
-		referenceFrame[3] = { referenceFrame[3].x, referenceFrame[3].y, referenceFrame[3].z + deltaSpeed, 1.0f };
+		referenceFrame[3] = { referenceFrame[3].x + deltaSpeed, referenceFrame[3].y, referenceFrame[3].z, 1.0f };
 		distanceMoved = abs(deltaSpeed) + distanceMoved;
 	}
-	else if (isMoving && distanceMoved >= distanceToMove)
+	else if (isMoving && distanceMoved >= distanceToMove && !completed)
 	{
 		distanceMoved = 0;
-		direction = -direction;
+		isMoving = false;
+		completed = true;
 	}
-
 }
 
 void SlidingAnimation::SetSpeed(float newSpeed)
@@ -66,4 +66,19 @@ void SlidingAnimation::SetMove(bool isMoving)
 bool SlidingAnimation::GetMove()
 {
 	return isMoving;
+}
+
+bool SlidingAnimation::GetCompleted()
+{
+	return completed;
+}
+
+void SlidingAnimation::SetCompleted(bool newState)
+{
+	completed = newState;
+}
+
+void SlidingAnimation::SetDirection(glm::vec3 direction)
+{
+	this->direction = direction;
 }

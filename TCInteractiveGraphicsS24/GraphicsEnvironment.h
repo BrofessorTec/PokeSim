@@ -51,7 +51,7 @@ public:
     void Render();
     glm::mat4 CreateViewMatrix(const glm::vec3& position, const glm::vec3& direction, const glm::vec3& up);
     //void Run2D();
-    void Run3D(std::unordered_map<int, std::shared_ptr<Poke>>& pokeMap);
+    void Run3D(std::unordered_map<int, std::shared_ptr<Poke>>& pokeMap, std::unordered_map<int, std::shared_ptr<Poke>>& invMap);
     void AddObject(const std::string name, std::shared_ptr<GraphicsObject>
         object);
     std::shared_ptr<Camera> GetCamera();
