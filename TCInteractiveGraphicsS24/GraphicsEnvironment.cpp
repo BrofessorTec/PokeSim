@@ -45,7 +45,7 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 	// should have 3-6 added here as well
 
 
-	if (key == GLFW_KEY_1 && action == GLFW_PRESS) {
+	if (key == GLFW_KEY_1 && action == GLFW_PRESS && objManager->GetObject(sel1)->GetPoke()->GetCurrHp() > 0) {
 		std::string placeholderSelName = currSel;
 		glm::vec3 placeholderPos = static_cast<glm::vec3>(objManager->GetObject(currSel)->GetReferenceFrame()[3]);
 		objManager->GetObject(currSel)->SetPosition(objManager->GetObject(sel1)->GetReferenceFrame()[3]);
@@ -59,6 +59,7 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 
 		attackAnimation1->SetObject(objManager->GetObject(currSel));
 		objManager->GetObject(currSel)->SetAnimation(attackAnimation1);
+		attackAnimation1->SetName("attack");
 
 		return;
 		
@@ -75,7 +76,7 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 
 	}
 	// for 2
-	if (key == GLFW_KEY_2 && action == GLFW_PRESS) {
+	if (key == GLFW_KEY_2 && action == GLFW_PRESS && objManager->GetObject(sel2)->GetPoke()->GetCurrHp() > 0) {
 		std::string placeholderSelName = currSel;
 		glm::vec3 placeholderPos = static_cast<glm::vec3>(objManager->GetObject(currSel)->GetReferenceFrame()[3]);
 		objManager->GetObject(currSel)->SetPosition(objManager->GetObject(sel2)->GetReferenceFrame()[3]);
@@ -89,6 +90,7 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 
 		attackAnimation1->SetObject(objManager->GetObject(currSel));
 		objManager->GetObject(currSel)->SetAnimation(attackAnimation1);
+		attackAnimation1->SetName("attack");
 
 		return;
 
@@ -438,10 +440,16 @@ void GraphicsEnvironment::Run3D(std::unordered_map<int, std::shared_ptr<Poke>>& 
 	
 	// new attack animation here
 	std::shared_ptr<AttackAnimation> attackAnimation1 = std::make_shared<AttackAnimation>();
+	attackAnimation1->SetName("attack");
 	std::shared_ptr<AttackAnimation> attackAnimation2 = std::make_shared<AttackAnimation>();
+	attackAnimation2->SetName("attack");
 
 	std::shared_ptr<SlidingAnimation> slidingOffAnimation = std::make_shared<SlidingAnimation>();
+	slidingOffAnimation->SetName("slidingOff");
+
 	std::shared_ptr<SlidingAnimation> slidingInAnimation = std::make_shared<SlidingAnimation>();
+	slidingInAnimation->SetName("slidingIn");
+
 	slidingInAnimation->SetDirection(glm::vec3(1.0f, 0.0f, 0.0f));
 
 	// this needs to be done for whatever the current selection is, or just all pokes not just poke1
@@ -569,7 +577,7 @@ void GraphicsEnvironment::Run3D(std::unordered_map<int, std::shared_ptr<Poke>>& 
 
 		
 
-		if (objManager->GetObject(objManager->GetCurrPokeSel())->GetAnimation() == attackAnimation1 && std::static_pointer_cast<AttackAnimation>(objManager->GetObject(objManager->GetCurrPokeSel())->GetAnimation())->GetCompleted())
+		if (objManager->GetObject(objManager->GetCurrPokeSel())->GetAnimation()->GetName() == "attack" && std::static_pointer_cast<AttackAnimation>(objManager->GetObject(objManager->GetCurrPokeSel())->GetAnimation())->GetCompleted())
 		{
 			// lower enemy hp, start animation for enemy
 			// lower enemy hp here
@@ -651,6 +659,7 @@ void GraphicsEnvironment::Run3D(std::unordered_map<int, std::shared_ptr<Poke>>& 
 				currEnemy = pokeMap[dexSel];
 				//
 				std::shared_ptr<AttackAnimation> attackAnimation1 = std::make_shared<AttackAnimation>();
+				attackAnimation1->SetName("attack");
 
 				attackAnimation1->SetObject(objManager->GetObject(objManager->GetCurrEnemy()));
 				objManager->GetObject(objManager->GetCurrEnemy())->SetAnimation(attackAnimation1);
@@ -737,6 +746,7 @@ void GraphicsEnvironment::Run3D(std::unordered_map<int, std::shared_ptr<Poke>>& 
 
 				slidingInAnimation->SetObject(objManager->GetObject(currSel));
 				objManager->GetObject(currSel)->SetAnimation(slidingInAnimation);
+				slidingInAnimation->SetCompleted(false); //testing if this fixes
 
 				//std::shared_ptr<AttackAnimation> attackAnimation1 = std::make_shared<AttackAnimation>();
 
@@ -744,17 +754,23 @@ void GraphicsEnvironment::Run3D(std::unordered_map<int, std::shared_ptr<Poke>>& 
 				//objManager->GetObject(currSel)->SetAnimation(attackAnimation1);
 			}
 
-			if (slidingOffAnimation->GetCompleted() && slidingInAnimation->GetCompleted())
-			{
-				attackAnimation1->SetObject(objManager->GetObject(currSel));
-				objManager->GetObject(currSel)->SetAnimation(attackAnimation1);
-				slidingOffAnimation->SetMove(false);
-				slidingInAnimation->SetMove(false);
-				slidingOffAnimation->SetCompleted(false);
-				slidingInAnimation->SetCompleted(false);
-			}
 		}
 
+
+		//if (slidingOffAnimation->GetCompleted() && slidingInAnimation->GetCompleted())
+		if (objManager->GetObject(objManager->GetCurrPokeSel())->GetAnimation()->GetName() == "slidingIn" && slidingInAnimation->GetCompleted())
+		{
+			//currSel = objManager->GetCurrPokeSel();
+			currSel = objManager->GetObject(objManager->GetCurrPokeSel())->GetPoke();
+			attackAnimation1->SetObject(objManager->GetObject(currSel->GetName() + "player"));
+			objManager->GetObject(currSel->GetName() + "player")->SetAnimation(attackAnimation1);
+			slidingOffAnimation->SetMove(false);
+			slidingInAnimation->SetMove(false);
+			slidingOffAnimation->SetCompleted(false);
+			slidingInAnimation->SetCompleted(false);
+		}
+
+		// render graphics
 		Render();
 
 		ImGui_ImplOpenGL3_NewFrame();

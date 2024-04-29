@@ -28,18 +28,9 @@ void SlidingAnimation::Update(double elapsedSeconds)
 	else if (isMoving && distanceMoved >= distanceToMove && !completed)
 	{
 		distanceMoved = 0;
-		direction = -direction;
 		isMoving = false;
 		completed = true;
 	}
-	/*
-	else if (isMoving && distanceMoved >= distanceToMove)
-	{
-		distanceMoved = 0;
-		direction = -direction;
-	}
-	*/
-
 }
 
 void SlidingAnimation::SetSpeed(float newSpeed)
