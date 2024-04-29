@@ -1808,7 +1808,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
 	graphicsEnviron->StaticAllocate();
 
-	graphicsEnviron->Run3D(pokeMap);
+	graphicsEnviron->Run3D(pokeMap, invMap);
 	
 	
 	return 0;
