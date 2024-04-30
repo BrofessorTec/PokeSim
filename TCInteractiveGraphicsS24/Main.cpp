@@ -569,7 +569,7 @@ static void SetUpBackgroundScene(std::shared_ptr<Shader>&
 		{
 			std::shared_ptr<GraphicsObject> currSelHp = std::make_shared<GraphicsObject>();
 
-			std::shared_ptr<VertexBuffer> currSelHpBuffer = Generate::XYPlane(3, 2);
+			std::shared_ptr<VertexBuffer> currSelHpBuffer = Generate::XYPlane(6, 1);
 
 			currSelHpBuffer->AddVertexAttribute("position", 0, 3, 0);
 			currSelHpBuffer->AddVertexAttribute("vertexColor", 1, 3, 3);
@@ -577,7 +577,7 @@ static void SetUpBackgroundScene(std::shared_ptr<Shader>&
 
 
 			std::shared_ptr<Texture> currSelHpTex = std::make_shared<Texture>();
-			std::string url = "..\\3rdparty\\Poke\\HP" + std::to_string(i) + ".png";
+			std::string url = "..\\3rdparty\\Poke\\HP" + std::to_string(i) + "Bar.png";
 			currSelHpTex->LoadTextureDataFromFile(url);
 
 			// adjusting the texture settings here
@@ -596,7 +596,7 @@ static void SetUpBackgroundScene(std::shared_ptr<Shader>&
 			}
 			else if (i == 10)
 			{
-				currSelHp->SetPosition(glm::vec3(7.5f, 10.0f, 3.0f));
+				currSelHp->SetPosition(glm::vec3(6.5f, 10.0f, 3.0f));
 			}
 			else
 			{
