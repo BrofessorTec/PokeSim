@@ -7,15 +7,6 @@ void SlidingAnimation::Update(double elapsedSeconds)
 {
 	if (object == nullptr) return;
 	float deltaSpeed = deltaSpeed = static_cast<float>(speed * elapsedSeconds);
-	/*
-	if (direction == glm::vec3(-1.0f, 0.0f, 0.0f))
-	{
-		deltaSpeed = -static_cast<float>(speed * elapsedSeconds);
-	}
-	else
-	{
-		deltaSpeed = static_cast<float>(speed * elapsedSeconds);
-	}*/
 
 	glm::mat4& referenceFrame = object->GetLocalReferenceFrame();
 
