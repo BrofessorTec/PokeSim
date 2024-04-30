@@ -9,6 +9,7 @@ private:
 	std::string currEnemy = "poke2";
 	std::string sel1 = "Dragoniteplayer";
 	std::string sel2 = "Mewtwoplayer";
+	bool enemyLookAtCamera = false;
 
 
 public:
@@ -25,5 +26,7 @@ public:
 	void SetPoke2Sel(std::string newSel);
 	std::string GetCurrEnemy();
 	void SetCurrEnemy(std::string newSel);
+	bool GetEnemyLookAtCamera();
+	void SetEnemyLookAtCamera(bool newState);
 };
 
