@@ -694,7 +694,7 @@ void GraphicsEnvironment::Run3D(std::unordered_map<int, std::shared_ptr<Poke>>& 
 			}
 
 		}
-		
+
 		if (currSel->GetCurrHp() <= 0)
 		{
 			// change out user poke here
@@ -708,8 +708,25 @@ void GraphicsEnvironment::Run3D(std::unordered_map<int, std::shared_ptr<Poke>>& 
 				camera->SetPosition(glm::vec3(-150.0f, 50.0f, -69.5f));
 			}
 
-
+			/*
+			// having some bugs in this right now..
 			// perform 0 health animation for user here
+			//int currHp = objManager->GetObject(currSel)->GetPoke()->GetCurrHp();
+			std::string currHpObject = "currSelHp0";
+			glm::vec3 currHpPos = objManager->GetObject(currHpObject)->GetReferenceFrame()[3];
+
+
+			//need to swap out prev with the Curr
+			std::string prevHpObject = "currSelHp1";
+			glm::vec3 prevHpPos = objManager->GetObject(prevHpObject)->GetReferenceFrame()[3];
+
+			objManager->GetObject(prevHpObject)->SetPosition(currHpPos);
+			objManager->GetObject(currHpObject)->SetPosition(prevHpPos);
+
+			// update prev
+			prevCurrSelHp = objManager->GetObject(objManager->GetCurrPokeSel())->GetPoke()->GetCurrHp();
+			*/
+
 			// adding new animation code here
 
 			slidingOffAnimation->SetObject(objManager->GetObject(currSel));
@@ -772,7 +789,6 @@ void GraphicsEnvironment::Run3D(std::unordered_map<int, std::shared_ptr<Poke>>& 
 				//attackAnimation1->SetObject(objManager->GetObject(currSel));
 				//objManager->GetObject(currSel)->SetAnimation(attackAnimation1);
 			}
-
 		}
 
 
