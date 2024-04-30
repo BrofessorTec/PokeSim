@@ -527,6 +527,33 @@ static void SetUpBackgroundScene(std::shared_ptr<Shader>&
 	backgroundScene->AddObject(sky);
 	graphicsEnviron->AddObject("sky", sky);
 
+	// new game over texture
+	std::shared_ptr<GraphicsObject> GameOver = std::make_shared<GraphicsObject>();
+
+	std::shared_ptr<VertexBuffer> GameOverBuffer = Generate::XYPlane(15, 15);
+
+	GameOverBuffer->AddVertexAttribute("position", 0, 3, 0);
+	GameOverBuffer->AddVertexAttribute("vertexColor", 1, 3, 3);
+	GameOverBuffer->AddVertexAttribute("texCoord", 2, 2, 6);
+
+
+	std::shared_ptr<Texture> GameOverTex = std::make_shared<Texture>();
+	GameOverTex->LoadTextureDataFromFile("..\\3rdparty\\GameOver.jpg");
+
+	// adjusting the texture settings here
+	GameOverTex->SetMagFilter(GL_NEAREST);
+	GameOverTex->SetMinFilter(GL_NEAREST);
+
+
+	GameOverBuffer->SetTexture(GameOverTex);
+	GameOver->SetVertexBuffer(GameOverBuffer);
+	GameOver->SetPosition(glm::vec3(-150.0f, 50.0f, -76.0f));
+
+	backgroundScene->AddObject(GameOver);
+	graphicsEnviron->AddObject("GameOver", GameOver);
+
+
+
 	// setting dirt floor here
 	std::shared_ptr<GraphicsObject> floor = std::make_shared<GraphicsObject>();
 
