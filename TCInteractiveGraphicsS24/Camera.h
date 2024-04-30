@@ -7,7 +7,7 @@ class Camera
 private:
 	glm::mat4 lookFrame = glm::mat4(1.0f); 
 	glm::mat4 refFrame = glm::mat4(1.0f);
-	int moveSpeed = 10;
+	int moveSpeed = 20;
 	bool canMove = false;
 
 public:

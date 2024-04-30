@@ -67,7 +67,7 @@ void Camera::MoveLeft(double elapsedSeconds)
 {
 	glm::vec3 toLeft = -lookFrame[0];
 	glm::vec3 position = refFrame[3];
-	toLeft = toLeft * static_cast<float>(10.0f * elapsedSeconds);
+	toLeft = toLeft * static_cast<float>(moveSpeed * elapsedSeconds);
 	position = position + toLeft;
 	refFrame[3] = glm::vec4(position, 1.0f);
 }
@@ -76,7 +76,7 @@ void Camera::MoveRight(double elapsedSeconds)
 {
 	glm::vec3 toRight = lookFrame[0];
 	glm::vec3 position = refFrame[3];
-	toRight = toRight * static_cast<float>(10.0f * elapsedSeconds);
+	toRight = toRight * static_cast<float>(moveSpeed * elapsedSeconds);
 	position = position + toRight;
 	refFrame[3] = glm::vec4(position, 1.0f);
 }

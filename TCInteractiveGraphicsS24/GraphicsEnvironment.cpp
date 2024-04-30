@@ -26,10 +26,19 @@ void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
 			std::static_pointer_cast<AttackAnimation>(objManager->GetObject(currSel)->GetAnimation())->SetMove(true);
 		}
 
-		// if interseting with catch, spawn a ball
+		// if interseting with catch, move to catch scene
 		if (objManager->GetObject("catchBtn")->IsIntersectingWithRay(GraphicsEnvironment::self->GetMouseRayVar())) {
-			// catch logic here to add to invMap
+			GraphicsEnvironment::self->GetCamera()->SetLookFrame(glm::mat4(1.0f));
+			GraphicsEnvironment::self->GetCamera()->SetPosition(glm::vec3(-410.0f, 7.5f, 50.0f));
+			return;
+		}
 
+		// if interseting with start, enable mouse movement and spawn a ball
+		if (objManager->GetObject("startBtn")->IsIntersectingWithRay(GraphicsEnvironment::self->GetMouseRayVar())) {
+			// catch logic here to add to invMap
+			GraphicsEnvironment::self->GetCamera()->SetCanMove(true);
+			GraphicsEnvironment::self->SetLookWithMouse(true);
+			objManager->GetObject("startBtn")->SetPosition(glm::vec3(410.0f, 5.0f, 50.0f));  //sending to a random spot, can fix this later
 		}
 
 		// if ball is spawned, clicking will throw it
@@ -115,6 +124,29 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 		GraphicsEnvironment::self->SetLookWithMouse(!GraphicsEnvironment::self->GetLookWithMouse());
 		return;
 	}
+
+	// set camera to catch scene position
+	if (glfwGetKey(window, GLFW_KEY_7) == GLFW_PRESS) {
+		GraphicsEnvironment::self->GetCamera()->SetLookFrame(glm::mat4(1.0f));
+		GraphicsEnvironment::self->GetCamera()->SetPosition(glm::vec3(-410.0f, 5.0f, 50.0f));
+		GraphicsEnvironment::self->GetCamera()->SetCanMove(true);
+		objManager->GetObject("startBtn")->SetPosition(glm::vec3(-410.0f, 7.5f, 40.0f));
+		return;
+	}
+
+	// enable camera movement for testing
+	if (glfwGetKey(window, GLFW_KEY_6) == GLFW_PRESS) {
+		GraphicsEnvironment::self->GetCamera()->SetCanMove(!GraphicsEnvironment::self->GetCamera()->GetCanMove());
+		return;
+	}
+
+	// sends camera to look with mouse
+	if (glfwGetKey(window, GLFW_KEY_5) == GLFW_PRESS) {
+		GraphicsEnvironment::self->SetLookWithMouse(!GraphicsEnvironment::self->GetLookWithMouse());
+		return;
+	}
+
+
 }
 
 
@@ -329,6 +361,8 @@ void GraphicsEnvironment::ProcessInput(GLFWwindow* window, double elapsedSeconds
 	if (glfwGetKey(window, GLFW_KEY_0) == GLFW_PRESS) {
 		camera->SetLookFrame(glm::mat4(1.0f));
 		camera->SetPosition(glm::vec3(60.0f, 5.5f, 22.5f));
+		camera->SetCanMove(false);
+		objManager->GetObject("startBtn")->SetPosition(glm::vec3(-410.0f, 7.5f, 40.0f));
 		lookWithMouse = false;
 		return;
 	}
@@ -336,6 +370,8 @@ void GraphicsEnvironment::ProcessInput(GLFWwindow* window, double elapsedSeconds
 	if (glfwGetKey(window, GLFW_KEY_9) == GLFW_PRESS) {
 		camera->SetLookFrame(glm::mat4(1.0f));
 		camera->SetPosition(glm::vec3(0.0f, 5.5f, 22.5f));
+		camera->SetCanMove(false);
+		objManager->GetObject("startBtn")->SetPosition(glm::vec3(-410.0f, 7.5f, 40.0f));
 		lookWithMouse = false;
 		return;
 	}
@@ -344,13 +380,19 @@ void GraphicsEnvironment::ProcessInput(GLFWwindow* window, double elapsedSeconds
 	if (glfwGetKey(window, GLFW_KEY_8) == GLFW_PRESS) {
 		camera->SetLookFrame(glm::mat4(1.0f));
 		camera->SetPosition(glm::vec3(-150.0f, 50.0f, -69.5f));
+		camera->SetCanMove(false);
+		objManager->GetObject("startBtn")->SetPosition(glm::vec3(-410.0f, 7.5f, 40.0f));
 		lookWithMouse = false;
 		return;
 	}
 
-	// enable camera movement for testing
+	// sends camera to look with mouse
 	if (glfwGetKey(window, GLFW_KEY_7) == GLFW_PRESS) {
-		camera->SetCanMove(!camera->GetCanMove());
+		camera->SetLookFrame(glm::mat4(1.0f));
+		camera->LookAtTarget(glm::vec3(-450.0f, 5.0f, -10.0f));
+		camera->LookForward();
+		// might need a start button in center, then look with mouse so that camera is oritented correctly..
+		//lookWithMouse = true;
 		return;
 	}
 
@@ -569,6 +611,8 @@ void GraphicsEnvironment::Run3D(std::unordered_map<int, std::shared_ptr<Poke>>& 
 		//objManager->GetObject("poke1")->PointAtTarget(camera->GetPosition());
 		//objManager->GetObject("poke2")->PointAtTarget(camera->GetPosition());
 
+		// make curr enemey look at camera for catch screen
+		//objManager->GetObject(objManager->GetCurrEnemy())->PointAtTarget(camera->GetPosition());
 
 		// this should work for all renderers now
 		for (auto& [name, renderer] : rendererMap) {
@@ -596,8 +640,7 @@ void GraphicsEnvironment::Run3D(std::unordered_map<int, std::shared_ptr<Poke>>& 
 		//objManager->GetObject("globe")->SetBehaviorParameters("highlight", hp);
 		objManager->GetObject("attackBtn")->SetBehaviorParameters("highlight", hp);
 		objManager->GetObject("catchBtn")->SetBehaviorParameters("highlight", hp);
-
-		
+		objManager->GetObject("startBtn")->SetBehaviorParameters("highlight", hp);
 
 		if (objManager->GetObject(objManager->GetCurrPokeSel())->GetAnimation()->GetName() == "attack" && std::static_pointer_cast<AttackAnimation>(objManager->GetObject(objManager->GetCurrPokeSel())->GetAnimation())->GetCompleted())
 		{
