@@ -337,6 +337,14 @@ void GraphicsEnvironment::ProcessInput(GLFWwindow* window, double elapsedSeconds
 		return;
 	}
 
+	// sends camera to game over
+	if (glfwGetKey(window, GLFW_KEY_8) == GLFW_PRESS) {
+		camera->SetLookFrame(glm::mat4(1.0f));
+		camera->SetPosition(glm::vec3(-150.0f, 50.0f, -69.5f));
+		lookWithMouse = false;
+		return;
+	}
+
 	if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) {
 		// raycast and pickup item to use as ammo?
 	}
@@ -693,6 +701,13 @@ void GraphicsEnvironment::Run3D(std::unordered_map<int, std::shared_ptr<Poke>>& 
 			// could just forcefully do the key swap to one thats not dead
 			std::string currSel = objManager->GetCurrPokeSel();
 			int pokeInvSize = invMap.size();
+
+			// game over screen position
+			if (objManager->GetObject(objManager->GetPoke1Sel())->GetPoke()->GetCurrHp() <= 0 && objManager->GetObject(objManager->GetPoke2Sel())->GetPoke()->GetCurrHp() <= 0)
+			{
+				camera->SetPosition(glm::vec3(-150.0f, 50.0f, -69.5f));
+			}
+
 
 			// perform 0 health animation for user here
 			// adding new animation code here
