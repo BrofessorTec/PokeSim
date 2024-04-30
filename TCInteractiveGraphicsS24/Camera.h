@@ -8,6 +8,7 @@ private:
 	glm::mat4 lookFrame = glm::mat4(1.0f); 
 	glm::mat4 refFrame = glm::mat4(1.0f);
 	int moveSpeed = 10;
+	bool canMove = false;
 
 public:
 	void SetLookFrame(glm::mat4 lookFrame);
@@ -22,5 +23,7 @@ public:
 	void MoveUp(double elapsedSeconds);
 	void MoveDown(double elapsedSeconds);
 	glm::vec3 GetPosition();
+	void SetCanMove(bool newState);
+	bool GetCanMove();
 };
 

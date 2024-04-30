@@ -250,34 +250,37 @@ void GraphicsEnvironment::ProcessInput(GLFWwindow* window, double elapsedSeconds
 		glfwSetWindowShouldClose(window, true);
 	}
 
-	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-		camera->MoveForward(elapsedSeconds);
-		return;
-	}
+	if (camera->GetCanMove())
+	{
+		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+			camera->MoveForward(elapsedSeconds);
+			return;
+		}
 
-	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-		camera->MoveLeft(elapsedSeconds);
-		return;
-	}
+		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
+			camera->MoveLeft(elapsedSeconds);
+			return;
+		}
 
-	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-		camera->MoveBackward(elapsedSeconds);
-		return;
-	}
+		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+			camera->MoveBackward(elapsedSeconds);
+			return;
+		}
 
-	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-		camera->MoveRight(elapsedSeconds);
-		return;
-	}
+		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+			camera->MoveRight(elapsedSeconds);
+			return;
+		}
 
-	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
-		camera->MoveUp(elapsedSeconds);
-		return;
-	}
+		if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
+			camera->MoveUp(elapsedSeconds);
+			return;
+		}
 
-	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
-		camera->MoveDown(elapsedSeconds);
-		return;
+		if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
+			camera->MoveDown(elapsedSeconds);
+			return;
+		}
 	}
 	/*
 	if (glfwGetKey(window, GLFW_KEY_F2) == GLFW_PRESS) {
@@ -345,6 +348,13 @@ void GraphicsEnvironment::ProcessInput(GLFWwindow* window, double elapsedSeconds
 		return;
 	}
 
+	// enable camera movement for testing
+	if (glfwGetKey(window, GLFW_KEY_7) == GLFW_PRESS) {
+		camera->SetCanMove(!camera->GetCanMove());
+		return;
+	}
+
+	/*
 	if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) {
 		// raycast and pickup item to use as ammo?
 	}
@@ -352,18 +362,18 @@ void GraphicsEnvironment::ProcessInput(GLFWwindow* window, double elapsedSeconds
 	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
 		// starts the animation and a timer for how long it is pressed down
 		// releasing mouse button will fire the item
-		/*if (objManager->GetObject("globe")->IsIntersectingWithRay(mouseRayVar)) {
+		if (objManager->GetObject("globe")->IsIntersectingWithRay(mouseRayVar)) {
 			bool isMoving = std::static_pointer_cast<SlidingAnimation>(objManager->GetObject("globe")->GetAnimation())->GetMove();
 			std::static_pointer_cast<SlidingAnimation>(objManager->GetObject("globe")->GetAnimation())->SetMove(!isMoving);
-		}*/
+		}
 
-		/*
+		
 		if (objManager->GetObject("attackBtn")->IsIntersectingWithRay(mouseRayVar)) {
 			// rotate left right left to simulate and attack rumble
 			//bool isMoving = std::static_pointer_cast<AttackAnimation>(objManager->GetObject("poke1")->GetAnimation())->GetMove();
 			std::static_pointer_cast<AttackAnimation>(objManager->GetObject("poke1")->GetAnimation())->SetMove(true);
 		}
-		*/
+		
 
 		
 	}
@@ -372,7 +382,7 @@ void GraphicsEnvironment::ProcessInput(GLFWwindow* window, double elapsedSeconds
 		// reset back to normal animation
 		// fires the item based on how long the left mouse button was held down
 	}
-
+	*/
 }
 
 glm::mat4 GraphicsEnvironment::CreateViewMatrix(const glm::vec3& position, const glm::vec3& direction, const glm::vec3& up)

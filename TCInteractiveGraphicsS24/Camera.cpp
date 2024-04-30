@@ -103,3 +103,13 @@ glm::vec3 Camera::GetPosition()
 {
 	return refFrame[3];
 }
+
+void Camera::SetCanMove(bool newState)
+{
+	canMove = newState;
+}
+
+bool Camera::GetCanMove()
+{
+	return canMove;
+}
