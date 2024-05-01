@@ -30,6 +30,7 @@ void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
 		if (objManager->GetObject("catchBtn")->IsIntersectingWithRay(GraphicsEnvironment::self->GetMouseRayVar())) {
 			GraphicsEnvironment::self->GetCamera()->SetLookFrame(glm::mat4(1.0f));
 			GraphicsEnvironment::self->GetCamera()->SetPosition(glm::vec3(-410.0f, 7.5f, 60.0f));
+			objManager->GetObject("startBtn")->SetPosition(glm::vec3(-410.0f, 7.5f, 59.0f));
 			objManager->GetObject(objManager->GetCurrEnemy())->GetMaterial().ambientIntensity = 1.0f;
 			std::random_device rand;
 			std::mt19937 gen(rand());

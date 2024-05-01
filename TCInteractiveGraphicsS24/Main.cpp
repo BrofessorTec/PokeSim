@@ -261,8 +261,8 @@ static void SetUpPokeBattler(std::shared_ptr<Shader>& shader3d,
 	url5 += ".png";
 	startBtnTex->LoadTextureDataFromFile(url5);
 
-	float startBtnWidth = 2.0f;
-	float startBtnHeight = 1.5f;
+	float startBtnWidth = 0.4f;
+	float startBtnHeight = 0.3f;
 
 	std::shared_ptr<GraphicsObject> startBtn = std::make_shared<GraphicsObject>();
 	std::shared_ptr<VertexBuffer> bufferstartBtn = Generate::XYPlaneNorm(startBtnWidth, startBtnHeight);
@@ -1055,6 +1055,33 @@ static void SetUpCatchScene(std::shared_ptr<Shader>&
 	graphicsEnviron->AddObject(name2, leaves);
 
 	}
+
+	// new sky texture
+	std::shared_ptr<GraphicsObject> sky = std::make_shared<GraphicsObject>();
+
+	std::shared_ptr<VertexBuffer> skyBuffer = Generate::XZPlane(250, 250);
+
+	skyBuffer->AddVertexAttribute("position", 0, 3, 0);
+	skyBuffer->AddVertexAttribute("vertexColor", 1, 3, 3);
+	skyBuffer->AddVertexAttribute("texCoord", 2, 2, 6);
+
+
+	std::shared_ptr<Texture> skyTex = std::make_shared<Texture>();
+	skyTex->LoadTextureDataFromFile("..\\3rdparty\\Sky.jpg");
+
+	// adjusting the texture settings here
+	skyTex->SetWrapS(GL_MIRRORED_REPEAT);
+	skyTex->SetWrapT(GL_MIRRORED_REPEAT);
+	skyTex->SetMagFilter(GL_NEAREST);
+	skyTex->SetMinFilter(GL_NEAREST);
+
+
+	skyBuffer->SetTexture(skyTex);
+	sky->SetVertexBuffer(skyBuffer);
+	sky->SetPosition(glm::vec3(-450.0f, 105.0f, 35.0f));
+
+	backgroundScene->AddObject(sky);
+	graphicsEnviron->AddObject("skyCatch", sky);
 
 }
 
