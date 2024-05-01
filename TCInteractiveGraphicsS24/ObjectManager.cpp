@@ -78,3 +78,13 @@ void ObjectManager::SetCurrEnemy(std::string newSel)
 {
 	currEnemy = newSel;
 }
+
+bool ObjectManager::GetEnemyLookAtCamera()
+{
+	return enemyLookAtCamera;
+}
+
+void ObjectManager::SetEnemyLookAtCamera(bool newState)
+{
+	enemyLookAtCamera = newState;
+}

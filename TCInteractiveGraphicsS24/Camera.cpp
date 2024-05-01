@@ -5,6 +5,11 @@ void Camera::SetLookFrame(glm::mat4 lookFrame)
 	this->lookFrame = lookFrame;
 }
 
+int Camera::GetMoveSpeed()
+{
+	return moveSpeed;
+}
+
 void Camera::SetMoveSpeed(int speed)
 {
 	moveSpeed = speed;
@@ -47,27 +52,40 @@ glm::mat4 Camera::LookAtTarget(glm::vec3 target)
 
 void Camera::MoveForward(double elapsedSeconds)
 {
+	// this is code to move forward at the current camera angle
+	/*
 	glm::vec3 forward = -lookFrame[2];
 	glm::vec3 position = refFrame[3];
 	forward = forward * static_cast<float>(moveSpeed * elapsedSeconds);
 	position = position + forward;
 	refFrame[3] = glm::vec4(position, 1.0f);
+	*/
+
+	// testing code to keep the same y value
+	glm::vec3 forward = -lookFrame[2];
+	float startingY = refFrame[3].y;
+	glm::vec3 position = refFrame[3];
+	forward = forward * static_cast<float>(moveSpeed * elapsedSeconds);
+	position = position + forward;
+	refFrame[3] = glm::vec4(position.x, startingY, position.z, 1.0f);
 }
 
 void Camera::MoveBackward(double elapsedSeconds)
 {
+	// this is code to move backward at the current camera angle
 	glm::vec3 backward = lookFrame[2];
+	float startingY = refFrame[3].y;
 	glm::vec3 position = refFrame[3];
 	backward = backward * static_cast<float>(moveSpeed * elapsedSeconds);
 	position = position + backward;
-	refFrame[3] = glm::vec4(position, 1.0f);
+	refFrame[3] = glm::vec4(position.x, startingY, position.z, 1.0f);
 }
 
 void Camera::MoveLeft(double elapsedSeconds)
 {
 	glm::vec3 toLeft = -lookFrame[0];
 	glm::vec3 position = refFrame[3];
-	toLeft = toLeft * static_cast<float>(10.0f * elapsedSeconds);
+	toLeft = toLeft * static_cast<float>(moveSpeed * elapsedSeconds);
 	position = position + toLeft;
 	refFrame[3] = glm::vec4(position, 1.0f);
 }
@@ -76,7 +94,7 @@ void Camera::MoveRight(double elapsedSeconds)
 {
 	glm::vec3 toRight = lookFrame[0];
 	glm::vec3 position = refFrame[3];
-	toRight = toRight * static_cast<float>(10.0f * elapsedSeconds);
+	toRight = toRight * static_cast<float>(moveSpeed * elapsedSeconds);
 	position = position + toRight;
 	refFrame[3] = glm::vec4(position, 1.0f);
 }
@@ -102,4 +120,14 @@ void Camera::MoveDown(double elapsedSeconds)
 glm::vec3 Camera::GetPosition()
 {
 	return refFrame[3];
+}
+
+void Camera::SetCanMove(bool newState)
+{
+	canMove = newState;
+}
+
+bool Camera::GetCanMove()
+{
+	return canMove;
 }

@@ -26,10 +26,47 @@ void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
 			std::static_pointer_cast<AttackAnimation>(objManager->GetObject(currSel)->GetAnimation())->SetMove(true);
 		}
 
-		// if interseting with catch, spawn a ball
+		// if interseting with catch, move to catch scene
 		if (objManager->GetObject("catchBtn")->IsIntersectingWithRay(GraphicsEnvironment::self->GetMouseRayVar())) {
-			// catch logic here to add to invMap
+			GraphicsEnvironment::self->GetCamera()->SetLookFrame(glm::mat4(1.0f));
+			GraphicsEnvironment::self->GetCamera()->SetPosition(glm::vec3(-410.0f, 7.5f, 60.0f));
+			objManager->GetObject("startBtn")->SetPosition(glm::vec3(-410.0f, 7.5f, 59.0f));
+			objManager->GetObject(objManager->GetCurrEnemy())->GetMaterial().ambientIntensity = 1.0f;
+			std::random_device rand;
+			std::mt19937 gen(rand());
+			// code for randomly placing the enemy
+			/*
+			int min = -25;
+			int max = 25;
+			std::uniform_int_distribution<int> dist(min, max);
+			int randomIntX = dist(gen);
+			int randomIntZ = dist(gen);
+			objManager->GetObject(objManager->GetCurrEnemy())->SetPosition(glm::vec3(-410.0f + static_cast<float>(randomIntX), 5.0f, 20.0f + static_cast<float>(randomIntZ)));
+			*/
 
+			// code for placing the enemy behind a random tree instead
+			// /*
+			int min = 0;
+			int max = 9;
+			std::uniform_int_distribution<int> dist(min, max);
+			int randomInt = dist(gen);
+			std::string name = "trunk" + std::to_string(randomInt);
+			//glm::vec3 newPos = objManager->GetObject(name)->GetReferenceFrame()[3].z + 15.0f; // cant get this to position right
+			// would probably also need to check if it is intersecting with the trunk, and if it is to try again for best results if two trees are close together
+			objManager->GetObject(objManager->GetCurrEnemy())->SetPosition(glm::vec3(objManager->GetObject(name)->GetReferenceFrame()[3].x, objManager->GetObject(name)->GetReferenceFrame()[3].y - 14.0f, objManager->GetObject(name)->GetReferenceFrame()[3].z - 10.0f));
+			objManager->SetEnemyLookAtCamera(true);
+			// */
+			return;
+		}
+
+		// if interseting with start, enable mouse movement and spawn a ball
+		if (objManager->GetObject("startBtn")->IsIntersectingWithRay(GraphicsEnvironment::self->GetMouseRayVar())) {
+			// catch logic here to add to invMap
+			GraphicsEnvironment::self->GetCamera()->SetCanMove(true);
+			GraphicsEnvironment::self->SetLookWithMouse(true);
+			GraphicsEnvironment::self->GetCamera()->SetMoveSpeed(20);
+			objManager->GetObject("startBtn")->SetPosition(glm::vec3(410.0f, 5.0f, 50.0f));  //sending to a random spot, can fix this later
+			// could probably start the movement here
 		}
 
 		// if ball is spawned, clicking will throw it
@@ -115,6 +152,41 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 		GraphicsEnvironment::self->SetLookWithMouse(!GraphicsEnvironment::self->GetLookWithMouse());
 		return;
 	}
+
+	// set camera to catch scene position
+	if (glfwGetKey(window, GLFW_KEY_7) == GLFW_PRESS) {
+		GraphicsEnvironment::self->GetCamera()->SetLookFrame(glm::mat4(1.0f));
+		GraphicsEnvironment::self->GetCamera()->SetPosition(glm::vec3(-410.0f, 5.0f, 50.0f));
+		GraphicsEnvironment::self->GetCamera()->SetCanMove(true);
+		objManager->GetObject("startBtn")->SetPosition(glm::vec3(-410.0f, 7.5f, 40.0f));
+		return;
+	}
+
+	// enable camera movement for testing
+	if (glfwGetKey(window, GLFW_KEY_6) == GLFW_PRESS) {
+		GraphicsEnvironment::self->GetCamera()->SetCanMove(!GraphicsEnvironment::self->GetCamera()->GetCanMove());
+		return;
+	}
+
+	// sends camera to look with mouse
+	if (glfwGetKey(window, GLFW_KEY_5) == GLFW_PRESS) {
+		GraphicsEnvironment::self->SetLookWithMouse(!GraphicsEnvironment::self->GetLookWithMouse());
+		return;
+	}
+
+	// increase move speed
+	if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
+		GraphicsEnvironment::self->GetCamera()->SetMoveSpeed(GraphicsEnvironment::self->GetCamera()->GetMoveSpeed()*2);
+		return;
+	}
+
+	// decrease move speed
+	if (glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS) {
+		GraphicsEnvironment::self->GetCamera()->SetMoveSpeed(GraphicsEnvironment::self->GetCamera()->GetMoveSpeed() / 2);
+		return;
+	}
+
+
 }
 
 
@@ -250,34 +322,37 @@ void GraphicsEnvironment::ProcessInput(GLFWwindow* window, double elapsedSeconds
 		glfwSetWindowShouldClose(window, true);
 	}
 
-	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-		camera->MoveForward(elapsedSeconds);
-		return;
-	}
+	if (camera->GetCanMove())
+	{
+		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+			camera->MoveForward(elapsedSeconds);
+			return;
+		}
 
-	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-		camera->MoveLeft(elapsedSeconds);
-		return;
-	}
+		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
+			camera->MoveLeft(elapsedSeconds);
+			return;
+		}
 
-	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-		camera->MoveBackward(elapsedSeconds);
-		return;
-	}
+		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+			camera->MoveBackward(elapsedSeconds);
+			return;
+		}
 
-	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-		camera->MoveRight(elapsedSeconds);
-		return;
-	}
+		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+			camera->MoveRight(elapsedSeconds);
+			return;
+		}
 
-	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
-		camera->MoveUp(elapsedSeconds);
-		return;
-	}
+		if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
+			camera->MoveUp(elapsedSeconds);
+			return;
+		}
 
-	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
-		camera->MoveDown(elapsedSeconds);
-		return;
+		if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
+			camera->MoveDown(elapsedSeconds);
+			return;
+		}
 	}
 	/*
 	if (glfwGetKey(window, GLFW_KEY_F2) == GLFW_PRESS) {
@@ -326,6 +401,9 @@ void GraphicsEnvironment::ProcessInput(GLFWwindow* window, double elapsedSeconds
 	if (glfwGetKey(window, GLFW_KEY_0) == GLFW_PRESS) {
 		camera->SetLookFrame(glm::mat4(1.0f));
 		camera->SetPosition(glm::vec3(60.0f, 5.5f, 22.5f));
+		camera->SetCanMove(false);
+		objManager->GetObject("startBtn")->SetPosition(glm::vec3(-410.0f, 7.5f, 40.0f));
+		objManager->GetObject(objManager->GetCurrEnemy())->GetMaterial().ambientIntensity = 0.4f;
 		lookWithMouse = false;
 		return;
 	}
@@ -333,6 +411,12 @@ void GraphicsEnvironment::ProcessInput(GLFWwindow* window, double elapsedSeconds
 	if (glfwGetKey(window, GLFW_KEY_9) == GLFW_PRESS) {
 		camera->SetLookFrame(glm::mat4(1.0f));
 		camera->SetPosition(glm::vec3(0.0f, 5.5f, 22.5f));
+		camera->SetCanMove(false);
+		objManager->GetObject("startBtn")->SetPosition(glm::vec3(-410.0f, 7.5f, 40.0f));
+		objManager->GetObject(objManager->GetCurrEnemy())->GetMaterial().ambientIntensity = 0.4f;
+		objManager->GetObject(objManager->GetCurrEnemy())->SetReferenceFrame(glm::mat4(1.0f));
+		objManager->GetObject(objManager->GetCurrEnemy())->SetPosition(glm::vec3(glm::vec3(7.5f, 4.0f, 0.0f)));
+		objManager->SetEnemyLookAtCamera(false);
 		lookWithMouse = false;
 		return;
 	}
@@ -341,10 +425,28 @@ void GraphicsEnvironment::ProcessInput(GLFWwindow* window, double elapsedSeconds
 	if (glfwGetKey(window, GLFW_KEY_8) == GLFW_PRESS) {
 		camera->SetLookFrame(glm::mat4(1.0f));
 		camera->SetPosition(glm::vec3(-150.0f, 50.0f, -69.5f));
+		camera->SetCanMove(false);
+		objManager->GetObject("startBtn")->SetPosition(glm::vec3(-410.0f, 7.5f, 40.0f));
+		objManager->GetObject(objManager->GetCurrEnemy())->GetMaterial().ambientIntensity = 0.4f;
+		objManager->GetObject(objManager->GetCurrEnemy())->SetReferenceFrame(glm::mat4(1.0f));
+		objManager->GetObject(objManager->GetCurrEnemy())->SetPosition(glm::vec3(glm::vec3(7.5f, 4.0f, 0.0f)));
+		objManager->SetEnemyLookAtCamera(false);
+
 		lookWithMouse = false;
 		return;
 	}
 
+	// sends camera to look with mouse
+	if (glfwGetKey(window, GLFW_KEY_7) == GLFW_PRESS) {
+		camera->SetLookFrame(glm::mat4(1.0f));
+		camera->LookAtTarget(glm::vec3(-450.0f, 5.0f, -10.0f));
+		camera->LookForward();
+		// might need a start button in center, then look with mouse so that camera is oritented correctly..
+		//lookWithMouse = true;
+		return;
+	}
+
+	/*
 	if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) {
 		// raycast and pickup item to use as ammo?
 	}
@@ -352,18 +454,18 @@ void GraphicsEnvironment::ProcessInput(GLFWwindow* window, double elapsedSeconds
 	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
 		// starts the animation and a timer for how long it is pressed down
 		// releasing mouse button will fire the item
-		/*if (objManager->GetObject("globe")->IsIntersectingWithRay(mouseRayVar)) {
+		if (objManager->GetObject("globe")->IsIntersectingWithRay(mouseRayVar)) {
 			bool isMoving = std::static_pointer_cast<SlidingAnimation>(objManager->GetObject("globe")->GetAnimation())->GetMove();
 			std::static_pointer_cast<SlidingAnimation>(objManager->GetObject("globe")->GetAnimation())->SetMove(!isMoving);
-		}*/
+		}
 
-		/*
+		
 		if (objManager->GetObject("attackBtn")->IsIntersectingWithRay(mouseRayVar)) {
 			// rotate left right left to simulate and attack rumble
 			//bool isMoving = std::static_pointer_cast<AttackAnimation>(objManager->GetObject("poke1")->GetAnimation())->GetMove();
 			std::static_pointer_cast<AttackAnimation>(objManager->GetObject("poke1")->GetAnimation())->SetMove(true);
 		}
-		*/
+		
 
 		
 	}
@@ -372,7 +474,7 @@ void GraphicsEnvironment::ProcessInput(GLFWwindow* window, double elapsedSeconds
 		// reset back to normal animation
 		// fires the item based on how long the left mouse button was held down
 	}
-
+	*/
 }
 
 glm::mat4 GraphicsEnvironment::CreateViewMatrix(const glm::vec3& position, const glm::vec3& direction, const glm::vec3& up)
@@ -409,7 +511,7 @@ void GraphicsEnvironment::Run3D(std::unordered_map<int, std::shared_ptr<Poke>>& 
 
 	float aspectRatio;
 	float nearPlane = 1.0f;
-	float farPlane = 200.0f;
+	float farPlane = 250.0f;
 	float fieldOfView = 60;
 
 	//glm::vec3 cameraPosition(15.0f, 15.0f, 20.0f);
@@ -559,6 +661,12 @@ void GraphicsEnvironment::Run3D(std::unordered_map<int, std::shared_ptr<Poke>>& 
 		//objManager->GetObject("poke1")->PointAtTarget(camera->GetPosition());
 		//objManager->GetObject("poke2")->PointAtTarget(camera->GetPosition());
 
+		// make curr enemey look at camera for catch screen
+		if (objManager->GetEnemyLookAtCamera())
+		{
+			objManager->GetObject(objManager->GetCurrEnemy())->PointAtTarget(camera->GetPosition());
+			// could also probably start the movement here
+		}
 
 		// this should work for all renderers now
 		for (auto& [name, renderer] : rendererMap) {
@@ -586,8 +694,7 @@ void GraphicsEnvironment::Run3D(std::unordered_map<int, std::shared_ptr<Poke>>& 
 		//objManager->GetObject("globe")->SetBehaviorParameters("highlight", hp);
 		objManager->GetObject("attackBtn")->SetBehaviorParameters("highlight", hp);
 		objManager->GetObject("catchBtn")->SetBehaviorParameters("highlight", hp);
-
-		
+		objManager->GetObject("startBtn")->SetBehaviorParameters("highlight", hp);
 
 		if (objManager->GetObject(objManager->GetCurrPokeSel())->GetAnimation()->GetName() == "attack" && std::static_pointer_cast<AttackAnimation>(objManager->GetObject(objManager->GetCurrPokeSel())->GetAnimation())->GetCompleted())
 		{
@@ -694,7 +801,7 @@ void GraphicsEnvironment::Run3D(std::unordered_map<int, std::shared_ptr<Poke>>& 
 			}
 
 		}
-		
+
 		if (currSel->GetCurrHp() <= 0)
 		{
 			// change out user poke here
@@ -708,8 +815,25 @@ void GraphicsEnvironment::Run3D(std::unordered_map<int, std::shared_ptr<Poke>>& 
 				camera->SetPosition(glm::vec3(-150.0f, 50.0f, -69.5f));
 			}
 
-
+			/*
+			// having some bugs in this right now..
 			// perform 0 health animation for user here
+			//int currHp = objManager->GetObject(currSel)->GetPoke()->GetCurrHp();
+			std::string currHpObject = "currSelHp0";
+			glm::vec3 currHpPos = objManager->GetObject(currHpObject)->GetReferenceFrame()[3];
+
+
+			//need to swap out prev with the Curr
+			std::string prevHpObject = "currSelHp1";
+			glm::vec3 prevHpPos = objManager->GetObject(prevHpObject)->GetReferenceFrame()[3];
+
+			objManager->GetObject(prevHpObject)->SetPosition(currHpPos);
+			objManager->GetObject(currHpObject)->SetPosition(prevHpPos);
+
+			// update prev
+			prevCurrSelHp = objManager->GetObject(objManager->GetCurrPokeSel())->GetPoke()->GetCurrHp();
+			*/
+
 			// adding new animation code here
 
 			slidingOffAnimation->SetObject(objManager->GetObject(currSel));
@@ -772,7 +896,6 @@ void GraphicsEnvironment::Run3D(std::unordered_map<int, std::shared_ptr<Poke>>& 
 				//attackAnimation1->SetObject(objManager->GetObject(currSel));
 				//objManager->GetObject(currSel)->SetAnimation(attackAnimation1);
 			}
-
 		}
 
 

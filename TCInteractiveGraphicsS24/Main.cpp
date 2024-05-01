@@ -254,6 +254,44 @@ static void SetUpPokeBattler(std::shared_ptr<Shader>& shader3d,
 	catchBtn->SetPosition(glm::vec3(4.0f, 1.0f, 10.0f));
 	scene3d->AddObject(catchBtn);
 
+	//start button here
+	std::shared_ptr<Texture> startBtnTex = std::make_shared<Texture>();
+	std::string startBtnUrl = "Start";
+	std::string url5 = "..\\3rdparty\\Poke\\" + startBtnUrl;
+	url5 += ".png";
+	startBtnTex->LoadTextureDataFromFile(url5);
+
+	float startBtnWidth = 0.4f;
+	float startBtnHeight = 0.3f;
+
+	std::shared_ptr<GraphicsObject> startBtn = std::make_shared<GraphicsObject>();
+	std::shared_ptr<VertexBuffer> bufferstartBtn = Generate::XYPlaneNorm(startBtnWidth, startBtnHeight);
+
+	bufferstartBtn->AddVertexAttribute("position", 0, 3, 0);
+	bufferstartBtn->AddVertexAttribute("vertexColor", 1, 4, 3);
+	bufferstartBtn->AddVertexAttribute("normal", 2, 3, 7);
+	bufferstartBtn->AddVertexAttribute("texCoord", 3, 2, 10);
+
+	// adjusting the texture settings here
+	startBtnTex->SetWrapS(GL_REPEAT);
+	startBtnTex->SetWrapT(GL_REPEAT);
+	startBtnTex->SetMagFilter(GL_NEAREST);
+	startBtnTex->SetMinFilter(GL_NEAREST);
+
+	bufferstartBtn->SetTexture(startBtnTex);
+
+	startBtn->SetVertexBuffer(bufferstartBtn);
+
+	startBtn->CreateBoundingBox(startBtnWidth, startBtnHeight, 0.5f);
+
+	// adding highlight behavior here
+
+	std::shared_ptr<HighlightBehavior> startBtnHighlight = std::make_shared<HighlightBehavior>();
+	startBtnHighlight->SetObject(startBtn);
+	startBtn->AddBehavior("highlight", startBtnHighlight);
+	startBtn->SetPosition(glm::vec3(-410.0f, 7.5f, 40.0f));
+	scene3d->AddObject(startBtn);
+
 	// new code
 	std::vector<int> dexNums = { 1, 2, 3, 4, 5, 6, 9, 25, 65, 68, 149, 150, 151 };
 	std::vector<int> dexPlayerNums = { 3, 149, 150 };
@@ -448,6 +486,8 @@ static void SetUpPokeBattler(std::shared_ptr<Shader>& shader3d,
 	//graphicsEnviron->AddObject("poke2", poke2);
 	graphicsEnviron->AddObject("attackBtn", attackBtn);
 	graphicsEnviron->AddObject("catchBtn", catchBtn);
+	graphicsEnviron->AddObject("startBtn", startBtn);
+
 
 
 }
@@ -797,6 +837,404 @@ static void SetUpSideScene(std::shared_ptr<Shader>& shader3d,
 }
 
 // end of hidden scene code here
+
+
+
+// inserting new catch scene here. curr enemy and camera will be shifted to here
+// new backgrounds scene here
+static void SetUpCatchScene(std::shared_ptr<Shader>&
+	backgroundShader, std::shared_ptr<Scene>& backgroundScene, std::shared_ptr<GraphicsEnvironment>& graphicsEnviron)
+{
+	//unsigned int shaderProgram;
+	std::shared_ptr<TextFile> vertFile = std::make_shared<TextFile>();
+	// relative path 
+	vertFile->ReadFile("texture.vert.glsl");
+
+	// relative path
+	std::shared_ptr<TextFile> fragFile = std::make_shared<TextFile>();
+	fragFile->ReadFile("texture.frag.glsl");
+
+	backgroundShader = std::make_shared<Shader>(vertFile->GetString(), fragFile->GetString());
+
+	backgroundShader->AddUniform("projection");
+	backgroundShader->AddUniform("world");
+	backgroundShader->AddUniform("view");
+
+	// new textured object to scene
+	backgroundScene = std::make_shared<Scene>();
+
+	// generator for walls 
+	for (int i = 0; i < 4; i++)
+	{
+		std::shared_ptr<GraphicsObject> background = std::make_shared<GraphicsObject>();
+
+		std::shared_ptr<VertexBuffer> backgroundBuffer = Generate::XYPlane(260, 130);
+
+		backgroundBuffer->AddVertexAttribute("position", 0, 3, 0);
+		backgroundBuffer->AddVertexAttribute("vertexColor", 1, 3, 3);
+		backgroundBuffer->AddVertexAttribute("texCoord", 2, 2, 6);
+
+
+		std::shared_ptr<Texture> backgroundTex = std::make_shared<Texture>();
+		backgroundTex->LoadTextureDataFromFile("..\\3rdparty\\Background.jpg");
+
+		// adjusting the texture settings here
+		backgroundTex->SetWrapS(GL_MIRRORED_REPEAT);
+		backgroundTex->SetWrapT(GL_MIRRORED_REPEAT);
+		backgroundTex->SetMagFilter(GL_NEAREST);
+		backgroundTex->SetMinFilter(GL_NEAREST);
+
+
+		backgroundBuffer->SetTexture(backgroundTex);
+		background->SetVertexBuffer(backgroundBuffer);
+
+		background->SetPosition(glm::vec3(-450.0f, 45.0f, -75.0f));
+		background->RotateLocalY(90*i);
+		if (i == 1)
+		{
+			background->SetPosition(glm::vec3(-500.0f, 45.0f, -45.0f));
+		}
+		else if (i == 2)
+		{
+			background->SetPosition(glm::vec3(-440.0f, 45.0f, 75.0f));
+		}
+		if (i == 3)
+		{
+			background->SetPosition(glm::vec3(-325.0f, 45.0f, -27.0f));
+		}
+
+
+		std::string name = "background" + std::to_string(i);
+		backgroundScene->AddObject(background);
+		graphicsEnviron->AddObject(name, background);
+
+	}
+
+	// single wall generation
+	/*
+	std::shared_ptr<GraphicsObject> background = std::make_shared<GraphicsObject>();
+
+	std::shared_ptr<VertexBuffer> backgroundBuffer = Generate::XYPlane(260, 130);
+
+	backgroundBuffer->AddVertexAttribute("position", 0, 3, 0);
+	backgroundBuffer->AddVertexAttribute("vertexColor", 1, 3, 3);
+	backgroundBuffer->AddVertexAttribute("texCoord", 2, 2, 6);
+
+
+	std::shared_ptr<Texture> backgroundTex = std::make_shared<Texture>();
+	backgroundTex->LoadTextureDataFromFile("..\\3rdparty\\Background.jpg");
+
+	// adjusting the texture settings here
+	backgroundTex->SetWrapS(GL_MIRRORED_REPEAT);
+	backgroundTex->SetWrapT(GL_MIRRORED_REPEAT);
+	backgroundTex->SetMagFilter(GL_NEAREST);
+	backgroundTex->SetMinFilter(GL_NEAREST);
+
+
+	backgroundBuffer->SetTexture(backgroundTex);
+	background->SetVertexBuffer(backgroundBuffer);
+	background->SetPosition(glm::vec3(-450.0f, 45.0f, -75.0f));
+
+	backgroundScene->AddObject(background);
+	graphicsEnviron->AddObject("background", background);
+	*/
+
+	// need this for all 4 corners, and a ceiling on the top for when camera is looking around
+
+	// setting dirt floor here
+	std::shared_ptr<GraphicsObject> floor = std::make_shared<GraphicsObject>();
+
+	std::shared_ptr<VertexBuffer> floorBuffer = Generate::XZPlane(250, 250);
+
+	floorBuffer->AddVertexAttribute("position", 0, 3, 0);
+	floorBuffer->AddVertexAttribute("vertexColor", 1, 3, 3);
+	floorBuffer->AddVertexAttribute("texCoord", 2, 2, 6);
+
+
+	std::shared_ptr<Texture> floorTex = std::make_shared<Texture>();
+	floorTex->LoadTextureDataFromFile("..\\3rdparty\\Ground.jpg");
+
+	// adjusting the texture settings here
+	floorTex->SetWrapS(GL_MIRRORED_REPEAT);
+	floorTex->SetWrapT(GL_MIRRORED_REPEAT);
+	floorTex->SetMagFilter(GL_NEAREST);
+	floorTex->SetMinFilter(GL_NEAREST);
+
+
+	floorBuffer->SetTexture(floorTex);
+	floor->SetVertexBuffer(floorBuffer);
+	floor->SetPosition(glm::vec3(-450.0f, -0.1f, 30.0f));
+
+	backgroundScene->AddObject(floor);
+	graphicsEnviron->AddObject("floor", floor);
+
+
+	// new trunk code here
+	for (int i = 0; i < 10; i++)
+	{
+	std::shared_ptr<Texture> texturetrunk = std::make_shared<Texture>();
+
+	texturetrunk->LoadTextureDataFromFile("..\\3rdparty\\Trunk.jpg");
+
+
+	float trunkWidth = 7.5f;
+	float trunkHeight = 50.0f;
+	float trunkDepth = 7.5f;
+
+	std::shared_ptr<GraphicsObject> trunk = std::make_shared<GraphicsObject>();
+	std::shared_ptr<VertexBuffer> buffertrunk = Generate::Cuboid(trunkWidth, trunkHeight, trunkDepth);
+
+	buffertrunk->AddVertexAttribute("position", 0, 3, 0);
+	buffertrunk->AddVertexAttribute("vertexColor", 1, 3, 3);
+	buffertrunk->AddVertexAttribute("texCoord", 2, 2, 6);
+
+	// adjusting the texture settings here
+	texturetrunk->SetWrapS(GL_REPEAT);
+	texturetrunk->SetWrapT(GL_REPEAT);
+	texturetrunk->SetMagFilter(GL_NEAREST);
+	texturetrunk->SetMinFilter(GL_NEAREST);
+
+	buffertrunk->SetTexture(texturetrunk);
+
+
+	trunk->SetVertexBuffer(buffertrunk);
+	// add bounding box here?
+	trunk->CreateBoundingBox(trunkWidth, trunkHeight, trunkDepth);
+
+	std::random_device rand;
+	std::mt19937 genX(rand());
+	std::mt19937 genZ(rand());
+	int minX = -70 - i;
+	int maxX = 70 + i;
+	int minZ = -20 + i;
+	int maxZ = 90 - i;
+	std::uniform_int_distribution<int> distX(minX, maxX);
+	std::uniform_int_distribution<int> distZ(minZ, maxZ);
+	int randomIntX = distX(genX);
+	int randomIntZ = distZ(genZ);
+	trunk->SetPosition(glm::vec3(-410.0f + static_cast<float>(randomIntX), 19.0f, -35.0f + static_cast<float>(randomIntZ)));
+	backgroundScene->AddObject(trunk);
+	std::string name = "trunk" + std::to_string(i);
+	graphicsEnviron->AddObject(name, trunk);
+
+	// add leaves
+	std::shared_ptr<Texture> textureleaves = std::make_shared<Texture>();
+
+	textureleaves->LoadTextureDataFromFile("..\\3rdparty\\Leaves.png");
+
+
+	float leavesWidth = 40.0f;
+	float leavesHeight = 40.0f;
+	float leavesDepth = 40.0f;
+
+	std::shared_ptr<GraphicsObject> leaves = std::make_shared<GraphicsObject>();
+	std::shared_ptr<VertexBuffer> bufferleaves = Generate::Cuboid(leavesWidth, leavesHeight, leavesDepth);
+
+	bufferleaves->AddVertexAttribute("position", 0, 3, 0);
+	bufferleaves->AddVertexAttribute("vertexColor", 1, 3, 3);
+	bufferleaves->AddVertexAttribute("texCoord", 2, 2, 6);
+
+	// adjusting the texture settings here
+	textureleaves->SetWrapS(GL_REPEAT);
+	textureleaves->SetWrapT(GL_REPEAT);
+	textureleaves->SetMagFilter(GL_NEAREST);
+	textureleaves->SetMinFilter(GL_NEAREST);
+
+	bufferleaves->SetTexture(textureleaves);
+
+
+	leaves->SetVertexBuffer(bufferleaves);
+	// add bounding box here?
+	//leaves->CreateBoundingBox(leavesWidth, leavesHeight, leavesDepth);
+
+	// set position to be above the trunk i
+	//leaves->SetPosition(glm::vec3(-410.0f + static_cast<float>(randomIntX), 5.0f, -35.0f + static_cast<float>(randomIntZ)));
+	leaves->SetPosition(glm::vec3(-410.0f + static_cast<float>(randomIntX), 60.0f + static_cast<float>(i) * 0.1, -35.0f + static_cast<float>(randomIntZ)));
+	backgroundScene->AddObject(leaves);
+	std::string name2 = "leaves" + std::to_string(i);
+	graphicsEnviron->AddObject(name2, leaves);
+
+	}
+
+	// new sky texture
+	std::shared_ptr<GraphicsObject> sky = std::make_shared<GraphicsObject>();
+
+	std::shared_ptr<VertexBuffer> skyBuffer = Generate::XZPlane(250, 250);
+
+	skyBuffer->AddVertexAttribute("position", 0, 3, 0);
+	skyBuffer->AddVertexAttribute("vertexColor", 1, 3, 3);
+	skyBuffer->AddVertexAttribute("texCoord", 2, 2, 6);
+
+
+	std::shared_ptr<Texture> skyTex = std::make_shared<Texture>();
+	skyTex->LoadTextureDataFromFile("..\\3rdparty\\Sky.jpg");
+
+	// adjusting the texture settings here
+	skyTex->SetWrapS(GL_MIRRORED_REPEAT);
+	skyTex->SetWrapT(GL_MIRRORED_REPEAT);
+	skyTex->SetMagFilter(GL_NEAREST);
+	skyTex->SetMinFilter(GL_NEAREST);
+
+
+	skyBuffer->SetTexture(skyTex);
+	sky->SetVertexBuffer(skyBuffer);
+	sky->SetPosition(glm::vec3(-450.0f, 105.0f, 35.0f));
+
+	backgroundScene->AddObject(sky);
+	graphicsEnviron->AddObject("skyCatch", sky);
+
+}
+
+
+
+static void SetUpCatchSceneObjects(std::shared_ptr<Shader>& shader3d,
+	std::shared_ptr<Scene>& scene3d, std::shared_ptr<GraphicsEnvironment>& graphicsEnviron)
+{
+
+	std::shared_ptr<TextFile> vertFile = std::make_shared<TextFile>();
+	// relative path 
+	vertFile->ReadFile("lighting.vert.glsl");
+
+	std::shared_ptr<TextFile> fragFile = std::make_shared<TextFile>();
+	// relative path 
+	fragFile->ReadFile("lighting.frag.glsl");
+
+
+	shader3d = std::make_shared<Shader>(vertFile->GetString(), fragFile->GetString());
+
+	shader3d->AddUniform("projection");
+	shader3d->AddUniform("world");
+	shader3d->AddUniform("view");
+	shader3d->AddUniform("materialAmbientIntensity");
+	shader3d->AddUniform("materialSpecularIntensity");
+	shader3d->AddUniform("materialShininess");
+	shader3d->AddUniform("globalLightPosition");
+	shader3d->AddUniform("globalLightColor");
+	shader3d->AddUniform("globalLightIntensity");
+	shader3d->AddUniform("globalLightAttenuationCoef");
+	shader3d->AddUniform("localLightPosition");
+	shader3d->AddUniform("localLightColor");
+	shader3d->AddUniform("localLightIntensity");
+	shader3d->AddUniform("localLightAttenuationCoef");
+	shader3d->AddUniform("viewPosition");
+	shader3d->AddUniform("texUnit");
+
+	unsigned int shaderProgram = shader3d->GetShaderProgram();
+	scene3d = std::make_shared<Scene>();
+
+	// Get the uniform locations
+	unsigned int projectionLoc = glGetUniformLocation(shaderProgram, "projection");
+	unsigned int viewLoc = glGetUniformLocation(shaderProgram, "view");
+	unsigned int worldLoc = glGetUniformLocation(shaderProgram, "world");
+
+	// new Floor code here
+	std::shared_ptr<Texture> texture3dFloor = std::make_shared<Texture>();
+
+	texture3dFloor->LoadTextureDataFromFile("..\\3rdparty\\Poke\\floor.png");
+
+
+	std::shared_ptr<GraphicsObject> graphicsObject3dFloor = std::make_shared<GraphicsObject>();
+	std::shared_ptr<VertexBuffer> bufferFloor = Generate::XZPlaneNorm(30, 40, glm::vec4{ 1.0f, 1.0f, 1.0f, 1.0f }, glm::vec3{ 1.0f, 1.0f, 1.0f }, glm::vec2{ 1.0f, 1.0f });
+
+	bufferFloor->AddVertexAttribute("position", 0, 3, 0);
+	bufferFloor->AddVertexAttribute("vertexColor", 1, 4, 3);
+	bufferFloor->AddVertexAttribute("normal", 2, 3, 7);
+	bufferFloor->AddVertexAttribute("texCoord", 3, 2, 10);
+
+	// adjusting the texture settings here
+	texture3dFloor->SetWrapS(GL_REPEAT);
+	texture3dFloor->SetWrapT(GL_REPEAT);
+	texture3dFloor->SetMagFilter(GL_NEAREST);
+	texture3dFloor->SetMinFilter(GL_NEAREST);
+
+	bufferFloor->SetTexture(texture3dFloor);
+
+	graphicsObject3dFloor->SetVertexBuffer(bufferFloor);
+
+	graphicsObject3dFloor->SetPosition(glm::vec3(60.0f, 0.0f, 0.0f));  //can adjust position if needed
+	graphicsObject3dFloor->RotateLocalY(90.0f);
+	scene3d->AddObject(graphicsObject3dFloor);
+
+	// new poke code here
+
+	std::shared_ptr<Texture> poke1SideTex = std::make_shared<Texture>();
+	// texture sprites from https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/6.png
+	// wiki files also look nice if they can work, https://pokemongo.fandom.com/wiki/Venusaur?file=Venusaur_female.png
+	std::string poke1SideDex = "149";
+	std::string url1Side = "..\\3rdparty\\Poke\\" + poke1SideDex;
+	url1Side += ".png";
+	poke1SideTex->LoadTextureDataFromFile(url1Side);
+
+	float poke1SideWidth = 10.0f;
+	float poke1SideHeight = 10.0f;
+
+	std::shared_ptr<GraphicsObject> poke1Side = std::make_shared<GraphicsObject>();
+	std::shared_ptr<VertexBuffer> bufferSidePoke1 = Generate::XYPlaneNormReverse(poke1SideWidth, poke1SideHeight);
+
+	bufferSidePoke1->AddVertexAttribute("position", 0, 3, 0);
+	bufferSidePoke1->AddVertexAttribute("vertexColor", 1, 4, 3);
+	bufferSidePoke1->AddVertexAttribute("normal", 2, 3, 7);
+	bufferSidePoke1->AddVertexAttribute("texCoord", 3, 2, 10);
+
+	// adjusting the texture settings here
+	//poke1Tex->SetWrapS(GL_REPEAT);
+	//poke1Tex->SetWrapT(GL_REPEAT);
+	poke1SideTex->SetMagFilter(GL_NEAREST);
+	poke1SideTex->SetMinFilter(GL_NEAREST);
+
+	bufferSidePoke1->SetTexture(poke1SideTex);
+
+	poke1Side->SetVertexBuffer(bufferSidePoke1);
+
+	//poke1Side->CreateBoundingBox(poke1SideWidth, poke1SideHeight, 0.5f);
+
+
+	//poke 2 here
+	std::shared_ptr<Texture> poke2SideTex = std::make_shared<Texture>();
+	std::string poke2SideDex = "150";
+	std::string url2Side = "..\\3rdparty\\Poke\\" + poke2SideDex;
+	url2Side += ".png";
+	poke2SideTex->LoadTextureDataFromFile(url2Side);
+
+	float poke2SideWidth = 10.0f;
+	float poke2SideHeight = 10.0f;
+
+	std::shared_ptr<GraphicsObject> poke2Side = std::make_shared<GraphicsObject>();
+	std::shared_ptr<VertexBuffer> bufferSidePoke2 = Generate::XYPlaneNormReverse(poke2SideWidth, poke2SideHeight);
+
+	bufferSidePoke2->AddVertexAttribute("position", 0, 3, 0);
+	bufferSidePoke2->AddVertexAttribute("vertexColor", 1, 4, 3);
+	bufferSidePoke2->AddVertexAttribute("normal", 2, 3, 7);
+	bufferSidePoke2->AddVertexAttribute("texCoord", 3, 2, 10);
+
+	// adjusting the texture settings here
+	poke2SideTex->SetWrapS(GL_REPEAT);
+	poke2SideTex->SetWrapT(GL_REPEAT);
+	poke2SideTex->SetMagFilter(GL_NEAREST);
+	poke2SideTex->SetMinFilter(GL_NEAREST);
+
+	bufferSidePoke2->SetTexture(poke2SideTex);
+
+	poke2Side->SetVertexBuffer(bufferSidePoke2);
+
+	//poke2Side->CreateBoundingBox(poke2SideWidth, poke2SideHeight, 0.5f);
+
+
+	poke1Side->SetPosition(glm::vec3(-7.5f + 60.0f, 4.0f, 0.0f));  //can adjust position if needed
+	scene3d->AddObject(poke1Side);
+
+	poke2Side->SetPosition(glm::vec3(7.5f + 60.0f, 4.0f, 0.0f));  //can adjust position if needed
+	scene3d->AddObject(poke2Side);
+
+	graphicsEnviron->AddObject("floorSide", graphicsObject3dFloor);
+	//graphicsEnviron->AddObject("background", background);
+	graphicsEnviron->AddObject("poke1Side", poke1Side);
+	graphicsEnviron->AddObject("poke2Side", poke2Side);
+
+
+
+}
+
 
 
 static void SetUp3DScene2(std::shared_ptr<Shader>& shader3d,
@@ -1240,6 +1678,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	std::shared_ptr<Shader> shaderBackground;
 	std::shared_ptr<Scene> sceneBackground;
 
+	// set up the catch scenes here
+	std::shared_ptr<Shader> shaderCatch;
+	std::shared_ptr<Scene> sceneCatch;
+
 	// set up the poke scenes here
 	std::shared_ptr<Shader> shaderSideScene;
 	std::shared_ptr<Scene> sceneSideScene;
@@ -1253,6 +1695,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	SetUpPlayerInv(pokeMap, invMap);
 
 	SetUpBackgroundScene(shaderBackground, sceneBackground, graphicsEnviron);
+	SetUpCatchScene(shaderCatch, sceneCatch, graphicsEnviron);
 	SetUpPokeBattler(shader3d, scene3d, graphicsEnviron, pokeMap, invMap);
 	SetUpSideScene(shaderSideScene, sceneSideScene, graphicsEnviron);
 
@@ -1261,6 +1704,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
 	graphicsEnviron->CreateRenderer("renderer3d", shader3d);
 	graphicsEnviron->GetRenderer("renderer3d")->SetScene(scene3d);
+
+	graphicsEnviron->CreateRenderer("rendererCatch", shaderCatch);
+	graphicsEnviron->GetRenderer("rendererCatch")->SetScene(sceneCatch);
 
 	//graphicsEnviron->CreateRenderer("rendererSideScene", shaderSideScene);
 	//graphicsEnviron->GetRenderer("rendererSideScene")->SetScene(sceneSideScene);
