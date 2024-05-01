@@ -34,13 +34,28 @@ void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
 			objManager->GetObject(objManager->GetCurrEnemy())->GetMaterial().ambientIntensity = 1.0f;
 			std::random_device rand;
 			std::mt19937 gen(rand());
+			// code for randomly placing the enemy
+			/*
 			int min = -25;
 			int max = 25;
 			std::uniform_int_distribution<int> dist(min, max);
 			int randomIntX = dist(gen);
 			int randomIntZ = dist(gen);
 			objManager->GetObject(objManager->GetCurrEnemy())->SetPosition(glm::vec3(-410.0f + static_cast<float>(randomIntX), 5.0f, 20.0f + static_cast<float>(randomIntZ)));
+			*/
+
+			// code for placing the enemy behind a random tree instead
+			// /*
+			int min = 0;
+			int max = 9;
+			std::uniform_int_distribution<int> dist(min, max);
+			int randomInt = dist(gen);
+			std::string name = "trunk" + std::to_string(randomInt);
+			//glm::vec3 newPos = objManager->GetObject(name)->GetReferenceFrame()[3].z + 15.0f; // cant get this to position right
+			// would probably also need to check if it is intersecting with the trunk, and if it is to try again for best results if two trees are close together
+			objManager->GetObject(objManager->GetCurrEnemy())->SetPosition(glm::vec3(objManager->GetObject(name)->GetReferenceFrame()[3].x, objManager->GetObject(name)->GetReferenceFrame()[3].y - 14.0f, objManager->GetObject(name)->GetReferenceFrame()[3].z - 10.0f));
 			objManager->SetEnemyLookAtCamera(true);
+			// */
 			return;
 		}
 

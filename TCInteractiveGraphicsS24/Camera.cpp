@@ -52,20 +52,33 @@ glm::mat4 Camera::LookAtTarget(glm::vec3 target)
 
 void Camera::MoveForward(double elapsedSeconds)
 {
+	// this is code to move forward at the current camera angle
+	/*
 	glm::vec3 forward = -lookFrame[2];
 	glm::vec3 position = refFrame[3];
 	forward = forward * static_cast<float>(moveSpeed * elapsedSeconds);
 	position = position + forward;
 	refFrame[3] = glm::vec4(position, 1.0f);
+	*/
+
+	// testing code to keep the same y value
+	glm::vec3 forward = -lookFrame[2];
+	float startingY = refFrame[3].y;
+	glm::vec3 position = refFrame[3];
+	forward = forward * static_cast<float>(moveSpeed * elapsedSeconds);
+	position = position + forward;
+	refFrame[3] = glm::vec4(position.x, startingY, position.z, 1.0f);
 }
 
 void Camera::MoveBackward(double elapsedSeconds)
 {
+	// this is code to move backward at the current camera angle
 	glm::vec3 backward = lookFrame[2];
+	float startingY = refFrame[3].y;
 	glm::vec3 position = refFrame[3];
 	backward = backward * static_cast<float>(moveSpeed * elapsedSeconds);
 	position = position + backward;
-	refFrame[3] = glm::vec4(position, 1.0f);
+	refFrame[3] = glm::vec4(position.x, startingY, position.z, 1.0f);
 }
 
 void Camera::MoveLeft(double elapsedSeconds)
