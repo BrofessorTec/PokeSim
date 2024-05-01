@@ -5,6 +5,11 @@ void Camera::SetLookFrame(glm::mat4 lookFrame)
 	this->lookFrame = lookFrame;
 }
 
+int Camera::GetMoveSpeed()
+{
+	return moveSpeed;
+}
+
 void Camera::SetMoveSpeed(int speed)
 {
 	moveSpeed = speed;

@@ -48,6 +48,7 @@ void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
 			// catch logic here to add to invMap
 			GraphicsEnvironment::self->GetCamera()->SetCanMove(true);
 			GraphicsEnvironment::self->SetLookWithMouse(true);
+			GraphicsEnvironment::self->GetCamera()->SetMoveSpeed(20);
 			objManager->GetObject("startBtn")->SetPosition(glm::vec3(410.0f, 5.0f, 50.0f));  //sending to a random spot, can fix this later
 			// could probably start the movement here
 		}
@@ -154,6 +155,18 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 	// sends camera to look with mouse
 	if (glfwGetKey(window, GLFW_KEY_5) == GLFW_PRESS) {
 		GraphicsEnvironment::self->SetLookWithMouse(!GraphicsEnvironment::self->GetLookWithMouse());
+		return;
+	}
+
+	// increase move speed
+	if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
+		GraphicsEnvironment::self->GetCamera()->SetMoveSpeed(GraphicsEnvironment::self->GetCamera()->GetMoveSpeed()*2);
+		return;
+	}
+
+	// decrease move speed
+	if (glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS) {
+		GraphicsEnvironment::self->GetCamera()->SetMoveSpeed(GraphicsEnvironment::self->GetCamera()->GetMoveSpeed() / 2);
 		return;
 	}
 
@@ -482,7 +495,7 @@ void GraphicsEnvironment::Run3D(std::unordered_map<int, std::shared_ptr<Poke>>& 
 
 	float aspectRatio;
 	float nearPlane = 1.0f;
-	float farPlane = 200.0f;
+	float farPlane = 250.0f;
 	float fieldOfView = 60;
 
 	//glm::vec3 cameraPosition(15.0f, 15.0f, 20.0f);

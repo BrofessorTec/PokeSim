@@ -967,6 +967,95 @@ static void SetUpCatchScene(std::shared_ptr<Shader>&
 
 	backgroundScene->AddObject(floor);
 	graphicsEnviron->AddObject("floor", floor);
+
+
+	// new trunk code here
+	for (int i = 0; i < 10; i++)
+	{
+	std::shared_ptr<Texture> texturetrunk = std::make_shared<Texture>();
+
+	texturetrunk->LoadTextureDataFromFile("..\\3rdparty\\Trunk.jpg");
+
+
+	float trunkWidth = 7.5f;
+	float trunkHeight = 50.0f;
+	float trunkDepth = 7.5f;
+
+	std::shared_ptr<GraphicsObject> trunk = std::make_shared<GraphicsObject>();
+	std::shared_ptr<VertexBuffer> buffertrunk = Generate::Cuboid(trunkWidth, trunkHeight, trunkDepth);
+
+	buffertrunk->AddVertexAttribute("position", 0, 3, 0);
+	buffertrunk->AddVertexAttribute("vertexColor", 1, 3, 3);
+	buffertrunk->AddVertexAttribute("texCoord", 2, 2, 6);
+
+	// adjusting the texture settings here
+	texturetrunk->SetWrapS(GL_REPEAT);
+	texturetrunk->SetWrapT(GL_REPEAT);
+	texturetrunk->SetMagFilter(GL_NEAREST);
+	texturetrunk->SetMinFilter(GL_NEAREST);
+
+	buffertrunk->SetTexture(texturetrunk);
+
+
+	trunk->SetVertexBuffer(buffertrunk);
+	// add bounding box here?
+	trunk->CreateBoundingBox(trunkWidth, trunkHeight, trunkDepth);
+
+	std::random_device rand;
+	std::mt19937 genX(rand());
+	std::mt19937 genZ(rand());
+	int minX = -70 - i;
+	int maxX = 70 + i;
+	int minZ = -20 + i;
+	int maxZ = 90 - i;
+	std::uniform_int_distribution<int> distX(minX, maxX);
+	std::uniform_int_distribution<int> distZ(minZ, maxZ);
+	int randomIntX = distX(genX);
+	int randomIntZ = distZ(genZ);
+	trunk->SetPosition(glm::vec3(-410.0f + static_cast<float>(randomIntX), 19.0f, -35.0f + static_cast<float>(randomIntZ)));
+	backgroundScene->AddObject(trunk);
+	std::string name = "trunk" + std::to_string(i);
+	graphicsEnviron->AddObject(name, trunk);
+
+	// add leaves
+	std::shared_ptr<Texture> textureleaves = std::make_shared<Texture>();
+
+	textureleaves->LoadTextureDataFromFile("..\\3rdparty\\Leaves.png");
+
+
+	float leavesWidth = 40.0f;
+	float leavesHeight = 40.0f;
+	float leavesDepth = 40.0f;
+
+	std::shared_ptr<GraphicsObject> leaves = std::make_shared<GraphicsObject>();
+	std::shared_ptr<VertexBuffer> bufferleaves = Generate::Cuboid(leavesWidth, leavesHeight, leavesDepth);
+
+	bufferleaves->AddVertexAttribute("position", 0, 3, 0);
+	bufferleaves->AddVertexAttribute("vertexColor", 1, 3, 3);
+	bufferleaves->AddVertexAttribute("texCoord", 2, 2, 6);
+
+	// adjusting the texture settings here
+	textureleaves->SetWrapS(GL_REPEAT);
+	textureleaves->SetWrapT(GL_REPEAT);
+	textureleaves->SetMagFilter(GL_NEAREST);
+	textureleaves->SetMinFilter(GL_NEAREST);
+
+	bufferleaves->SetTexture(textureleaves);
+
+
+	leaves->SetVertexBuffer(bufferleaves);
+	// add bounding box here?
+	//leaves->CreateBoundingBox(leavesWidth, leavesHeight, leavesDepth);
+
+	// set position to be above the trunk i
+	//leaves->SetPosition(glm::vec3(-410.0f + static_cast<float>(randomIntX), 5.0f, -35.0f + static_cast<float>(randomIntZ)));
+	leaves->SetPosition(glm::vec3(-410.0f + static_cast<float>(randomIntX), 60.0f + static_cast<float>(i) * 0.1, -35.0f + static_cast<float>(randomIntZ)));
+	backgroundScene->AddObject(leaves);
+	std::string name2 = "leaves" + std::to_string(i);
+	graphicsEnviron->AddObject(name2, leaves);
+
+	}
+
 }
 
 

@@ -12,6 +12,7 @@ private:
 
 public:
 	void SetLookFrame(glm::mat4 lookFrame);
+	int GetMoveSpeed();
 	void SetMoveSpeed(int speed);
 	void SetPosition(glm::vec3 position);  
 	glm::mat4 LookForward();
