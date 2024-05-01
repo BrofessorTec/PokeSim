@@ -385,6 +385,7 @@ void GraphicsEnvironment::ProcessInput(GLFWwindow* window, double elapsedSeconds
 		camera->SetCanMove(false);
 		objManager->GetObject("startBtn")->SetPosition(glm::vec3(-410.0f, 7.5f, 40.0f));
 		objManager->GetObject(objManager->GetCurrEnemy())->GetMaterial().ambientIntensity = 0.4f;
+		objManager->GetObject(objManager->GetCurrEnemy())->SetReferenceFrame(glm::mat4(1.0f));
 		objManager->GetObject(objManager->GetCurrEnemy())->SetPosition(glm::vec3(glm::vec3(7.5f, 4.0f, 0.0f)));
 		objManager->SetEnemyLookAtCamera(false);
 		lookWithMouse = false;
@@ -398,8 +399,10 @@ void GraphicsEnvironment::ProcessInput(GLFWwindow* window, double elapsedSeconds
 		camera->SetCanMove(false);
 		objManager->GetObject("startBtn")->SetPosition(glm::vec3(-410.0f, 7.5f, 40.0f));
 		objManager->GetObject(objManager->GetCurrEnemy())->GetMaterial().ambientIntensity = 0.4f;
+		objManager->GetObject(objManager->GetCurrEnemy())->SetReferenceFrame(glm::mat4(1.0f));
 		objManager->GetObject(objManager->GetCurrEnemy())->SetPosition(glm::vec3(glm::vec3(7.5f, 4.0f, 0.0f)));
 		objManager->SetEnemyLookAtCamera(false);
+
 		lookWithMouse = false;
 		return;
 	}
